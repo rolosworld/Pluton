@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+export PERL_ENCODING=UTF-8
+MYAPP=`pwd`
+export PERL5LIB=${MYAPP}/lib
+
+APP=`basename $0`
+
+declare "CATALYST_HOME"="${MYAPP}"
+export "CATALYST_HOME"
+
+echo $CATALYST_HOME
+
+if [ "$1" = "DEBUG" ]; then
+    export DBIC_TRACE=1
+    perl -I lib -d ./servers/${APP}
+else
+    perl -I lib ./servers/${APP}
+fi
+

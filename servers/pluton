@@ -1,0 +1,30 @@
+use strict;
+use warnings;
+
+use File::Basename;
+my $mode = basename($0);
+$mode = ucfirst($mode);
+
+require "$mode.pm";
+$mode->import;
+
+# Minify resources
+if ($mode->can('resourcesInit')) {
+  $mode->log->info('Loading Resources');
+  $mode->resourcesInit;
+}
+
+# Start Pusher client
+use Pluton::WebSocket::Handlers;
+
+my $app = $mode->apply_default_middlewares($mode->psgi_app);
+
+
+use Twiggy::Server;
+my $server = Twiggy::Server->new(
+    host => 0,
+    port => $mode->config->{port},
+);
+$server->register_service($app);
+
+AE::cv->recv;
