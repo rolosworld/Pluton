@@ -119,7 +119,7 @@ sub resourcesInit {
                 $self->log->error("Could not open file '$raw_filename' $!");
             }
 
-            my $bin = Papertopc->path_to('../bin')->stringify;
+            my $bin = $self->path_to('bin')->stringify;
             $_all
                 = `java -jar $bin/closure_compiler/compiler.jar $raw_filename`;
 
