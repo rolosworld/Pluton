@@ -1,6 +1,6 @@
 site.logout = {
     init: function() {
-        var $logout = site.$.select('.pying-logout');
+        var $logout = site.$.select('.pluton-logout');
         $logout.off('click');
         $logout.on('click', function() {
             site.logout.run();

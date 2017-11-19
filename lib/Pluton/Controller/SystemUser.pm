@@ -1,51 +1,28 @@
-package Pluton::Controller::Root;
+package Pluton::Controller::SystemUser;
 use Moose;
 use namespace::autoclean;
 
-BEGIN { extends 'Main::Controller::Root' }
+BEGIN { extends 'Main::Controller' }
 
-=head2 index
-
-The root page (/)
+=head2 add
 
 =cut
 
-sub index : Path : Args(0) {
-    my ( $self, $c ) = @_;
-    my $data = {
-        config => {
-        },
-    };
-
-    if ( $c->user_exists ) {
-        my $user = $c->user->obj;
-        $$data{user} = $user;
-        #$$data{digest} = {
-        #    session => $c->session->{system_user_digest},
-        #    cookie  => $c->req->cookies->{system_user_digest}->value,
-        #};
-    }
-
-    # Load re-captcha html in case we needed
-    my $recap_conf = $c->config->{'Captcha::reCAPTCHA'};
-    $$data{recaptcha_key} = $recap_conf->{public};
-
-    $c->stash->{data}     = $data;
-    $c->stash->{template} = 'index.tmpl';
+sub add : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->add($params);
 }
 
-=head1 NAME
+=head2 list
 
-Pluton - Catalyst based application
+=cut
 
-=head1 SYNOPSIS
+sub list : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->list;
+}
 
-
-=head1 DESCRIPTION
-
-
-=head1 SEE ALSO
-
+=encoding utf8
 
 =head1 AUTHOR
 

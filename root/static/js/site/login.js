@@ -1,6 +1,6 @@
 site.login = {
   init: function() {
-      site.doms.left.inner(site.mustache.render('login',{}));
+      site.doms.middle.inner(site.mustache.render('login',{}));
 
       var $form = Meta.dom.$().select('#login-form');
       $form.on('submit', function(){
@@ -28,7 +28,6 @@ site.login = {
                       site.data.user = v.result;
                       site.init();
                       site.switchMode('home');
-                      site.processHash();
                       return true;
                   }
 

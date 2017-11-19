@@ -5,6 +5,10 @@
     uploadfiles              => Pluton->path_to('data/files')->stringify,
     max_user_tags            => 10,
 
+    'Plugin::Session' => {
+        storage => Pluton->path_to('data/sessions')->stringify,
+    },
+
     'View::Web' => {
         ENCODING => 'utf8',
 	INCLUDE_PATH => [
@@ -31,6 +35,12 @@
         }
     },
 
+    system_users_blacklist => {
+      root => 1,
+      perl => 1,
+      pluton => 1,
+    },
+
     # CSS goes in it's own all.css file
     # JS and Mustache goes in all.js
     resources => {
@@ -41,6 +51,7 @@
                /static/js/site/_.js
                /static/js/site/log.js
                /static/js/site/mode/home.js
+               /static/js/site/mode/system_user.js
                /static/js/site/init.js
                /static/js/site/mustache.js
                /static/js/site/login.js
@@ -55,6 +66,7 @@
             menu => '/static/mustache/menu.mustache',
             log => '/static/mustache/log.mustache',
             error => '/static/mustache/error.mustache',
+            system_user => '/static/mustache/system_user.mustache',
         },
     }
 }

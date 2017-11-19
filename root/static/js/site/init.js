@@ -45,18 +45,9 @@ site.processHash = function(hash) {
         data.mode = 'home';
     }
 
-    if (site.data.mode != data.mode) {
-        site.mode[data.mode].init( data );
-    }
-
-    if (data.method) {
-        if (site.mode[data.mode].methods &&
-            site.mode[data.mode].methods[data.method]) {
-            site.mode[data.mode].methods[data.method]( data );
-        }
-    }
-
+    site.mode[data.mode].init( data );
     site.data.mode = data.mode;
+    window.scrollTo(0, site.doms.middle.get(0).offsetTop);
 };
 
 site.switchMode = function(mode) {

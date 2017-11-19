@@ -9,6 +9,8 @@ site.log = {
         Meta.array.$(errors).forEach(function(v){
             log.prepend(site.mustache.render('error',v));
         });
+
+        window.scrollTo(0, site.doms.right.get(0).offsetTop);
     },
     clear: function() {
         site.log.$dom.inner('');

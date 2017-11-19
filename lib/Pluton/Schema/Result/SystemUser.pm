@@ -1,12 +1,12 @@
 use utf8;
-package Pluton::Schema::Result::User;
+package Pluton::Schema::Result::SystemUser;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Pluton::Schema::Result::User
+Pluton::Schema::Result::SystemUser
 
 =cut
 
@@ -30,11 +30,11 @@ extends 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("InflateColumn::DateTime");
 
-=head1 TABLE: C<users>
+=head1 TABLE: C<system_users>
 
 =cut
 
-__PACKAGE__->table("users");
+__PACKAGE__->table("system_users");
 
 =head1 ACCESSORS
 
@@ -43,7 +43,7 @@ __PACKAGE__->table("users");
   data_type: 'bigint'
   is_auto_increment: 1
   is_nullable: 0
-  sequence: 'users_id_seq'
+  sequence: 'system_users_id_seq'
 
 =head2 created
 
@@ -59,10 +59,10 @@ __PACKAGE__->table("users");
   is_nullable: 0
   original: {default_value => \"now()"}
 
-=head2 active
+=head2 owner
 
-  data_type: 'smallint'
-  default_value: 1
+  data_type: 'bigint'
+  is_foreign_key: 1
   is_nullable: 0
 
 =head2 username
@@ -85,7 +85,7 @@ __PACKAGE__->add_columns(
     data_type         => "bigint",
     is_auto_increment => 1,
     is_nullable       => 0,
-    sequence          => "users_id_seq",
+    sequence          => "system_users_id_seq",
   },
   "created",
   {
@@ -101,8 +101,8 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
-  "active",
-  { data_type => "smallint", default_value => 1, is_nullable => 0 },
+  "owner",
+  { data_type => "bigint", is_foreign_key => 1, is_nullable => 0 },
   "username",
   { data_type => "varchar", is_nullable => 0, size => 255 },
   "password",
@@ -123,9 +123,11 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<users_username_key>
+=head2 C<system_users_owner_username_key>
 
 =over 4
+
+=item * L</owner>
 
 =item * L</username>
 
@@ -133,67 +135,34 @@ __PACKAGE__->set_primary_key("id");
 
 =cut
 
-__PACKAGE__->add_unique_constraint("users_username_key", ["username"]);
+__PACKAGE__->add_unique_constraint("system_users_owner_username_key", ["owner", "username"]);
 
 =head1 RELATIONS
 
-=head2 memberships
+=head2 owner
 
-Type: has_many
+Type: belongs_to
 
-Related object: L<Pluton::Schema::Result::Membership>
-
-=cut
-
-__PACKAGE__->has_many(
-  "memberships",
-  "Pluton::Schema::Result::Membership",
-  { "foreign.user" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 system_users
-
-Type: has_many
-
-Related object: L<Pluton::Schema::Result::SystemUser>
+Related object: L<Pluton::Schema::Result::User>
 
 =cut
 
-__PACKAGE__->has_many(
-  "system_users",
-  "Pluton::Schema::Result::SystemUser",
-  { "foreign.owner" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 user_websockets
-
-Type: has_many
-
-Related object: L<Pluton::Schema::Result::UserWebsocket>
-
-=cut
-
-__PACKAGE__->has_many(
-  "user_websockets",
-  "Pluton::Schema::Result::UserWebsocket",
-  { "foreign.user" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+__PACKAGE__->belongs_to(
+  "owner",
+  "Pluton::Schema::Result::User",
+  { id => "owner" },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 
 # Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-11-18 14:34:29
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:suMNq8S6GRfA+PkShNE3wA
-
-with 'Main::DBMethods::User';
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MbeUSrK6llQ4bXgrYMLd1A
 
 sub TO_JSON {
     my ($self) = @_;
-    my $data = {$self->get_columns};
-    delete $$data{token};
-    delete $$data{password};
-    return $data;
+    return {
+        username => $self->username,
+    };
 }
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

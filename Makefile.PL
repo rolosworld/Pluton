@@ -116,10 +116,12 @@ requires 'Crypt::PBKDF2';
 requires 'MIME::Base64::URLSafe';
 requires 'MIME::Base32';
 requires 'AnyEvent::WebSocket::Client';
+requires 'Crypt::Blowfish';
 
 test_requires 'Test::More' => '0.88';
 catalyst;
 
+install_script glob('script/*.pl');
 auto_install;
 tests_recursive();
 WriteAll;

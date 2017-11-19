@@ -1,0 +1,23 @@
+<div class="icon-block" name="system_user">
+  <h4 class="center brown-text">System Users{{#system_users.method_name}}: {{system_users.method_name}}{{/system_users.method_name}}</h4>
+  <p class="light">
+    {{#system_users.method.add}}
+    <form action="#" method="post" id="system_user-add-form">
+      <div>
+        <input type="text" name="username" placeholder="Username (Max 32, Alphanumeric)"/>
+      </div>
+
+      <div>
+        <input type="password" name="password" placeholder="Password (Min 1, Max 70)"/>
+      </div>
+
+      <input type="submit" value="Add"/>
+    </form>
+    {{/system_users.method.add}}
+    {{^system_users.method_name}}
+        {{#system_users.users}}
+        <a href="#">{{username}}</a>
+        {{/system_users.users}}
+    {{/system_users.method_name}}
+  </p>
+</div>

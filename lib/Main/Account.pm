@@ -21,12 +21,26 @@ sub __login {
     $c->set_authenticated($user); # logs the user in and calls persist_user
 }
 
+sub __get_login_schema {
+    return $__login_schema;
+}
+
 sub __validate_login {
     my ($self, $params) = @_;
     my $validator = Main::JSON::Validator->new;
-    $validator->schema($__login_schema);
+    $validator->schema($self->__get_login_schema);
 
     return $validator->validate($params);
+}
+
+sub __validate_password {
+    my ($self, $user, $params) = @_;
+    if ( Crypt::SaltedHash->validate( $user->password, $$params{password}, 4 ) ) {
+        $self->__login($user);
+        return 1;
+    }
+
+    return 0;
 }
 
 sub login {
@@ -53,8 +67,7 @@ sub login {
         }
 
         # Validate password
-        if ( Crypt::SaltedHash->validate( $user->password, $$params{password}, 4 ) ) {
-            $self->__login($user);
+        if ($self->__validate_password($user, $params)) {
             return $c->user->obj;
         }
 
