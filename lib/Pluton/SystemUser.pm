@@ -78,11 +78,12 @@ sub add {
     }
 
     my $sys_cmd = $self->getObject('SystemUser::Command', c => $c);
-    my $output = $sys_cmd->run({
+    my $run = {
         username => $$params{username},
         password => $$params{password},
         command  => 'whoami',
-    });
+    };
+    my $output = $sys_cmd->run($run);
 
     if (!$output) {
         $self->jsonrpc_error(
@@ -105,6 +106,10 @@ sub add {
 
         return;
     }
+
+    # Create authinfo2 file and .pluton folder
+    $$run{command} = 'mkdir -p ~/.s3ql ~/.pluton/backup && install -b -m 600 /dev/null ~/.s3ql/authinfo2';
+    $sys_cmd->run($run);
 
     my $pass_encrypted = $self->encrypt_password($$params{password});
 
@@ -178,10 +183,6 @@ sub s3ql {
     };
 
     if ($$params{authinfo2}) {
-        # Create authinfo2 file and .pluton folder
-        $$run{command} = 'mkdir -p ~/.s3ql ~/.pluton/backup && install -b -m 600 /dev/null ~/.s3ql/authinfo2';
-        $sys_cmd->run($run);
-
         # Fill the file with the content, line per line
         my $authinfo2 = $$params{authinfo2};
 
