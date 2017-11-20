@@ -33,10 +33,10 @@ sub run {
     });
     $exp->expect($timeout,
                  [
-                  'Password:' => sub {
+                  qr/password:/i => sub {
                       shift->send("$system_pass\n");
                       exp_continue;
-                  }
+                  },
                  ],
         );
 

@@ -41,7 +41,7 @@ site.showDoms = function() {
 
 site.processHash = function(hash) {
     var data = site.parseHash(hash || location.hash);
-    if (!data.mode || !site.mode[data.mode]) {
+    if (!site.data.user || !data.mode || !site.mode[data.mode]) {
         data.mode = 'home';
     }
 

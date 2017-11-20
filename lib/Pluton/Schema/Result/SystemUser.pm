@@ -161,6 +161,7 @@ __PACKAGE__->belongs_to(
 sub TO_JSON {
     my ($self) = @_;
     return {
+        id => $self->id,
         username => $self->username,
     };
 }

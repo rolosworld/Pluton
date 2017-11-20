@@ -22,6 +22,24 @@ sub list : Remote {
     return $self->getObject( 'SystemUser', c => $c )->list;
 }
 
+=head2 s3ql
+
+=cut
+
+sub s3ql : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->s3ql( $params );
+}
+
+=head2 s3ql_remount
+
+=cut
+
+sub s3ql_remount : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->s3ql_remount( $params );
+}
+
 =encoding utf8
 
 =head1 AUTHOR

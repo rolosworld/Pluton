@@ -1,6 +1,7 @@
 <div class="icon-block" name="system_user">
   <h4 class="center brown-text">System Users{{#system_users.method_name}}: {{system_users.method_name}}{{/system_users.method_name}}</h4>
   <p class="light">
+
     {{#system_users.method.add}}
     <form action="#" method="post" id="system_user-add-form">
       <div>
@@ -14,9 +15,30 @@
       <input type="submit" value="Add"/>
     </form>
     {{/system_users.method.add}}
+
+    {{#system_users.method.s3ql}}
+    <form action="#" method="post" id="system_user-s3ql-form">
+      <input type="hidden" name="id"/>
+
+      <div>
+        <textarea name="authinfo2"></textarea>
+      </div>
+
+      <input type="submit" value="Save"/>
+    </form>
+
+    <form action="#" method="post" id="system_user-s3ql_remount-form">
+      <input type="hidden" name="id"/>
+
+      <input type="submit" value="Re-Mount"/>
+    </form>
+
+    <pre id="system_user-s3ql_log"></pre>
+    {{/system_users.method.s3ql}}
+
     {{^system_users.method_name}}
         {{#system_users.users}}
-        <a href="#">{{username}}</a>
+        <a href="#mode=system_user;method=s3ql;user={{id}}">{{username}}</a>
         {{/system_users.users}}
     {{/system_users.method_name}}
   </p>
