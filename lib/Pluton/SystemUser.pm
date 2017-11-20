@@ -262,7 +262,7 @@ sub s3ql_remount {
 
     # umount first
     $$run{command} = "umount.s3ql ~/.pluton/backup";
-    my $output = $sys_cmd->run($run);
+    $output = $sys_cmd->run($run);
 
     # fsck
     $$run{command} = "fsck.s3ql --force '$storage_url'";
