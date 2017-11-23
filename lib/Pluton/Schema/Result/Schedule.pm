@@ -1,12 +1,12 @@
 use utf8;
-package Pluton::Schema::Result::SystemUser;
+package Pluton::Schema::Result::Schedule;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Pluton::Schema::Result::SystemUser
+Pluton::Schema::Result::Schedule
 
 =cut
 
@@ -30,11 +30,11 @@ extends 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("InflateColumn::DateTime");
 
-=head1 TABLE: C<system_users>
+=head1 TABLE: C<schedules>
 
 =cut
 
-__PACKAGE__->table("system_users");
+__PACKAGE__->table("schedules");
 
 =head1 ACCESSORS
 
@@ -43,7 +43,7 @@ __PACKAGE__->table("system_users");
   data_type: 'bigint'
   is_auto_increment: 1
   is_nullable: 0
-  sequence: 'system_users_id_seq'
+  sequence: 'schedules_id_seq'
 
 =head2 created
 
@@ -59,23 +59,42 @@ __PACKAGE__->table("system_users");
   is_nullable: 0
   original: {default_value => \"now()"}
 
-=head2 owner
+=head2 creator
 
   data_type: 'bigint'
   is_foreign_key: 1
   is_nullable: 0
 
-=head2 username
+=head2 name
 
   data_type: 'varchar'
   is_nullable: 0
   size: 255
 
-=head2 password
+=head2 minute
 
-  data_type: 'varchar'
-  is_nullable: 0
-  size: 255
+  data_type: 'smallint'
+  is_nullable: 1
+
+=head2 hour
+
+  data_type: 'smallint'
+  is_nullable: 1
+
+=head2 day_of_month
+
+  data_type: 'smallint'
+  is_nullable: 1
+
+=head2 month
+
+  data_type: 'smallint'
+  is_nullable: 1
+
+=head2 day_of_week
+
+  data_type: 'smallint'
+  is_nullable: 1
 
 =cut
 
@@ -85,7 +104,7 @@ __PACKAGE__->add_columns(
     data_type         => "bigint",
     is_auto_increment => 1,
     is_nullable       => 0,
-    sequence          => "system_users_id_seq",
+    sequence          => "schedules_id_seq",
   },
   "created",
   {
@@ -101,12 +120,20 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
-  "owner",
+  "creator",
   { data_type => "bigint", is_foreign_key => 1, is_nullable => 0 },
-  "username",
+  "name",
   { data_type => "varchar", is_nullable => 0, size => 255 },
-  "password",
-  { data_type => "varchar", is_nullable => 0, size => 255 },
+  "minute",
+  { data_type => "smallint", is_nullable => 1 },
+  "hour",
+  { data_type => "smallint", is_nullable => 1 },
+  "day_of_month",
+  { data_type => "smallint", is_nullable => 1 },
+  "month",
+  { data_type => "smallint", is_nullable => 1 },
+  "day_of_week",
+  { data_type => "smallint", is_nullable => 1 },
 );
 
 =head1 PRIMARY KEY
@@ -123,19 +150,40 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<system_users_owner_username_key>
+=head2 C<schedules_minute_hour_day_of_month_month_day_of_week_key>
 
 =over 4
 
-=item * L</owner>
+=item * L</minute>
 
-=item * L</username>
+=item * L</hour>
+
+=item * L</day_of_month>
+
+=item * L</month>
+
+=item * L</day_of_week>
 
 =back
 
 =cut
 
-__PACKAGE__->add_unique_constraint("system_users_owner_username_key", ["owner", "username"]);
+__PACKAGE__->add_unique_constraint(
+  "schedules_minute_hour_day_of_month_month_day_of_week_key",
+  ["minute", "hour", "day_of_month", "month", "day_of_week"],
+);
+
+=head2 C<schedules_name_key>
+
+=over 4
+
+=item * L</name>
+
+=back
+
+=cut
+
+__PACKAGE__->add_unique_constraint("schedules_name_key", ["name"]);
 
 =head1 RELATIONS
 
@@ -150,11 +198,11 @@ Related object: L<Pluton::Schema::Result::Backup>
 __PACKAGE__->has_many(
   "backups",
   "Pluton::Schema::Result::Backup",
-  { "foreign.system_user" => "self.id" },
+  { "foreign.schedule" => "self.id" },
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
-=head2 owner
+=head2 creator
 
 Type: belongs_to
 
@@ -163,22 +211,33 @@ Related object: L<Pluton::Schema::Result::User>
 =cut
 
 __PACKAGE__->belongs_to(
-  "owner",
+  "creator",
   "Pluton::Schema::Result::User",
-  { id => "owner" },
+  { id => "creator" },
   { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 
 # Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-11-23 11:21:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/AodrIiarwLFXw0bYhBlcw
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:jiuT70D+iXRsO9dtdFLvMA
 
 sub TO_JSON {
     my ($self) = @_;
-    return {
-        id => $self->id,
-        username => $self->username,
-    };
+    my $data = {$self->get_columns};
+
+    if (defined $$data{month}) {
+        $$data{month_selected} = {
+            $$data{month} => 1,
+        };
+    }
+
+    if (defined $$data{day_of_week}) {
+        $$data{day_of_week_selected} = {
+            $$data{day_of_week} => 1,
+        };
+    }
+
+    return $data;
 }
 
 # You can replace this text with custom code or comments, and it will be preserved on regeneration

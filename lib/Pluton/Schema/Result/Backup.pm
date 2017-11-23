@@ -1,12 +1,12 @@
 use utf8;
-package Pluton::Schema::Result::User;
+package Pluton::Schema::Result::Backup;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Pluton::Schema::Result::User
+Pluton::Schema::Result::Backup
 
 =cut
 
@@ -30,11 +30,11 @@ extends 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("InflateColumn::DateTime");
 
-=head1 TABLE: C<users>
+=head1 TABLE: C<backups>
 
 =cut
 
-__PACKAGE__->table("users");
+__PACKAGE__->table("backups");
 
 =head1 ACCESSORS
 
@@ -43,7 +43,7 @@ __PACKAGE__->table("users");
   data_type: 'bigint'
   is_auto_increment: 1
   is_nullable: 0
-  sequence: 'users_id_seq'
+  sequence: 'backups_id_seq'
 
 =head2 created
 
@@ -59,23 +59,34 @@ __PACKAGE__->table("users");
   is_nullable: 0
   original: {default_value => \"now()"}
 
-=head2 active
+=head2 creator
 
-  data_type: 'smallint'
-  default_value: 1
+  data_type: 'bigint'
+  is_foreign_key: 1
   is_nullable: 0
 
-=head2 username
+=head2 system_user
+
+  data_type: 'bigint'
+  is_foreign_key: 1
+  is_nullable: 0
+
+=head2 schedule
+
+  data_type: 'bigint'
+  is_foreign_key: 1
+  is_nullable: 0
+
+=head2 name
 
   data_type: 'varchar'
   is_nullable: 0
   size: 255
 
-=head2 password
+=head2 folders
 
-  data_type: 'varchar'
+  data_type: 'text'
   is_nullable: 0
-  size: 255
 
 =cut
 
@@ -85,7 +96,7 @@ __PACKAGE__->add_columns(
     data_type         => "bigint",
     is_auto_increment => 1,
     is_nullable       => 0,
-    sequence          => "users_id_seq",
+    sequence          => "backups_id_seq",
   },
   "created",
   {
@@ -101,12 +112,16 @@ __PACKAGE__->add_columns(
     is_nullable   => 0,
     original      => { default_value => \"now()" },
   },
-  "active",
-  { data_type => "smallint", default_value => 1, is_nullable => 0 },
-  "username",
+  "creator",
+  { data_type => "bigint", is_foreign_key => 1, is_nullable => 0 },
+  "system_user",
+  { data_type => "bigint", is_foreign_key => 1, is_nullable => 0 },
+  "schedule",
+  { data_type => "bigint", is_foreign_key => 1, is_nullable => 0 },
+  "name",
   { data_type => "varchar", is_nullable => 0, size => 255 },
-  "password",
-  { data_type => "varchar", is_nullable => 0, size => 255 },
+  "folders",
+  { data_type => "text", is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -123,106 +138,72 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<users_username_key>
+=head2 C<backups_name_key>
 
 =over 4
 
-=item * L</username>
+=item * L</name>
 
 =back
 
 =cut
 
-__PACKAGE__->add_unique_constraint("users_username_key", ["username"]);
+__PACKAGE__->add_unique_constraint("backups_name_key", ["name"]);
 
 =head1 RELATIONS
 
-=head2 backups
+=head2 creator
 
-Type: has_many
+Type: belongs_to
 
-Related object: L<Pluton::Schema::Result::Backup>
-
-=cut
-
-__PACKAGE__->has_many(
-  "backups",
-  "Pluton::Schema::Result::Backup",
-  { "foreign.creator" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 memberships
-
-Type: has_many
-
-Related object: L<Pluton::Schema::Result::Membership>
+Related object: L<Pluton::Schema::Result::User>
 
 =cut
 
-__PACKAGE__->has_many(
-  "memberships",
-  "Pluton::Schema::Result::Membership",
-  { "foreign.user" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+__PACKAGE__->belongs_to(
+  "creator",
+  "Pluton::Schema::Result::User",
+  { id => "creator" },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
-=head2 schedules
+=head2 schedule
 
-Type: has_many
+Type: belongs_to
 
 Related object: L<Pluton::Schema::Result::Schedule>
 
 =cut
 
-__PACKAGE__->has_many(
-  "schedules",
+__PACKAGE__->belongs_to(
+  "schedule",
   "Pluton::Schema::Result::Schedule",
-  { "foreign.creator" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { id => "schedule" },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
-=head2 system_users
+=head2 system_user
 
-Type: has_many
+Type: belongs_to
 
 Related object: L<Pluton::Schema::Result::SystemUser>
 
 =cut
 
-__PACKAGE__->has_many(
-  "system_users",
+__PACKAGE__->belongs_to(
+  "system_user",
   "Pluton::Schema::Result::SystemUser",
-  { "foreign.owner" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
-
-=head2 user_websockets
-
-Type: has_many
-
-Related object: L<Pluton::Schema::Result::UserWebsocket>
-
-=cut
-
-__PACKAGE__->has_many(
-  "user_websockets",
-  "Pluton::Schema::Result::UserWebsocket",
-  { "foreign.user" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
+  { id => "system_user" },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
 
 # Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-11-23 11:21:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wGzyQlzQ3O4t8SvKITA9sw
-
-with 'Main::DBMethods::User';
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XSmI1DCaSGK5khNYohhctg
 
 sub TO_JSON {
     my ($self) = @_;
     my $data = {$self->get_columns};
-    delete $$data{token};
-    delete $$data{password};
     return $data;
 }
 

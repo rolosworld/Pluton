@@ -1,0 +1,32 @@
+<div class="icon-block" name="backup">
+  <h4 class="center brown-text">Backup{{#backups.method_name}}: {{backups.method_name}}{{/backups.method_name}}</h4>
+  <p class="light">
+
+    {{#backups.method.add}}
+    <form action="#" method="post" id="backup-add-form">
+      <div>
+        <input type="text" name="name" placeholder="Name (Max 32, Alphanumeric)"/>
+      </div>
+
+      <input type="submit" value="Add" class="btn"/>
+      <a href="#mode=backup" class="pluton-menu-item pluton-backup btn">
+        Cancel
+      </a>
+    </form>
+    {{/backups.method.add}}
+
+    {{^backups.method_name}}
+        <p class="light">
+          <a href="#mode=backup;method=add" class="pluton-menu-item pluton-backup-add btn">
+            Add Backup
+          </a>
+        </p>
+
+        <hr/>
+
+        {{#backups.names}}
+            <a href="#mode=backup;method=edit;id={{id}}" class="btn">{{name}}</a>
+        {{/backups.names}}
+    {{/backups.method_name}}
+  </p>
+</div>

@@ -1,4 +1,4 @@
-package Pluton::SystemUser;
+package Pluton::Backup;
 use Modern::Perl;
 use Moose;
 use namespace::autoclean;
@@ -41,7 +41,7 @@ sub add {
         return;
     }
 
-    my $exist = $c->model('DB::SystemUser')->search({
+    my $exist = $c->model('DB::Backup')->search({
         owner => $c->user->id,
         username => $$params{username},
     })->next;
@@ -91,7 +91,7 @@ sub add {
 
     my $pass_encrypted = $self->encrypt_password($$params{password});
 
-    $c->model('DB::SystemUser')->create({
+    $c->model('DB::Backup')->create({
         owner => $c->user->id,
         username => $$params{username},
         password => $pass_encrypted,
@@ -104,7 +104,7 @@ sub list {
     my ($self) = @_;
     my $c = $self->c;
 
-    my @sys_users = $c->model('DB::SystemUser')->search({
+    my @sys_users = $c->model('DB::Backup')->search({
         owner => $c->user->id,
     })->all;
 

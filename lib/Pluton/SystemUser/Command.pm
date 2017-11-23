@@ -2,12 +2,83 @@ package Pluton::SystemUser::Command;
 use Modern::Perl;
 use Moose;
 use namespace::autoclean;
+use Main::JSON::Validator;
 use Crypt::CBC;
 use Expect;
+use MIME::Base64;
 
 extends 'Main::Module';
 
+sub encrypt_password {
+    my ($self, $pass) = @_;
+    my $c = $self->c;
+
+    my $key = $c->session->{system_user_digest} . $c->req->cookies->{system_user_digest}->value;
+    my $cipher = Crypt::CBC->new( -key    => $key, -cipher => 'Blowfish' );
+    return encode_base64($cipher->encrypt( $pass ));
+}
+
+sub decrypt_password {
+    my ($self, $pass) = @_;
+    my $c = $self->c;
+
+    my $key = $c->session->{system_user_digest} . $c->req->cookies->{system_user_digest}->value;
+    my $cipher = Crypt::CBC->new( -key    => $key, -cipher => 'Blowfish' );
+    return $cipher->decrypt(decode_base64($pass));
+}
+
+
+our $__run_schema = {
+    required   => [qw(user)],
+    properties => {
+        user => { type => 'integer', minimum => 1, maximum => 10000 },
+    }
+};
+
+sub __validate_run {
+    my ($self, $params) = @_;
+    my $validator = Main::JSON::Validator->new;
+    $validator->schema($__run_schema);
+
+    return $validator->validate($params);
+}
+
 sub run {
+    my ($self, $params) = @_;
+    my $c = $self->c;
+
+    my @errors = $self->__validate_run($params);
+    if ( $errors[0] ) {
+        $self->jsonrpc_error( \@errors );
+    }
+
+    my $system_user = $c->model('DB::SystemUser')->search({
+        owner => $c->user->id,
+        id => $$params{user},
+    })->next;
+
+    if ( !$system_user ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/user',
+                    message => 'User doesn\'t exist in your system users list',
+                }
+            ]);
+        return;
+    }
+
+    my $pass_decrypted  = $self->decrypt_password($system_user->password);
+
+    my $run = {
+        username => $system_user->username,
+        password => $pass_decrypted,
+        command  => $$params{command},
+    };
+
+    my $output = $self->expect($run);
+    return $output;
+}
+
+sub expect {
     my ($self, $params) = @_;
     my $c = $self->c;
 

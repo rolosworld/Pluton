@@ -1,50 +1,37 @@
-package Pluton::Controller::Root;
+package Pluton::Controller::Schedule;
 use Moose;
 use namespace::autoclean;
 
-BEGIN { extends 'Main::Controller::Root' }
+BEGIN { extends 'Main::Controller' }
 
-=head2 index
-
-The root page (/)
+=head2 edit
 
 =cut
 
-sub index : Path : Args(0) {
-    my ( $self, $c ) = @_;
-    my $data = {
-        config => {
-        },
-    };
-
-    if ( $c->user_exists ) {
-        # Force login if the system_user_digest is broken
-        if (!$c->session->{system_user_digest} ||
-            !$c->req->cookies->{system_user_digest}) {
-            $self->getObject( 'Account', c => $c )->logout;
-        }
-        else {
-            my $user = $c->user->obj;
-            $$data{user} = $user;
-        }
-    }
-
-    $c->stash->{data}     = $data;
-    $c->stash->{template} = 'index.tmpl';
+sub edit : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'Schedule', c => $c )->edit($params);
 }
 
-=head1 NAME
+=head2 add
 
-Pluton - Catalyst based application
+=cut
 
-=head1 SYNOPSIS
+sub add : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'Schedule', c => $c )->add($params);
+}
 
+=head2 list
 
-=head1 DESCRIPTION
+=cut
 
+sub list : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'Schedule', c => $c )->list;
+}
 
-=head1 SEE ALSO
-
+=encoding utf8
 
 =head1 AUTHOR
 

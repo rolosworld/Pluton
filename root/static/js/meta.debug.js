@@ -1293,6 +1293,21 @@ Meta.string=Meta(Meta.core).extend({
 
 
   /**
+   <method name="hasInt" type="bool">
+   <desc>Returns true if there's an int on the string, else returns false.</desc>
+   <test>
+   <![CDATA[
+     return Meta.string.$("1a2b3").hasInt()=="123";
+   ]]>
+   </test>
+   </method>
+  */
+  hasInt:function()
+  {
+    return this.get().match(/\d/g) !== null;
+  },
+
+  /**
    <method name="toInt" type="integer">
    <desc>Strip all non numeric characters from the string and returns it as an integer.</desc>
    <test>

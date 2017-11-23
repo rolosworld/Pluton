@@ -52,6 +52,7 @@
                /static/js/site/log.js
                /static/js/site/mode/home.js
                /static/js/site/mode/system_user.js
+               /static/js/site/mode/schedule.js
                /static/js/site/init.js
                /static/js/site/mustache.js
                /static/js/site/login.js
@@ -67,6 +68,8 @@
             log => '/static/mustache/log.mustache',
             error => '/static/mustache/error.mustache',
             system_user => '/static/mustache/system_user.mustache',
+            schedule => '/static/mustache/schedule.mustache',
+            'schedule-form' => '/static/mustache/schedule-form.mustache',
         },
     }
 }

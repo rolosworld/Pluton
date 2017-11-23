@@ -28,7 +28,7 @@ site.mode.system_user = {
         var $id = $form.select('input[name="id"]');
         var $submit = $form.select('input[type="submit"]');
 
-        var params = {user: $id.val()};
+        var params = {user: Meta.string.$($id.val()).toInt()};
         if (authinfo2_val) {
             params.authinfo2 = authinfo2_val;
         }
@@ -58,21 +58,24 @@ site.mode.system_user = {
         var su = site.mode.system_user;
 
         var $log = Meta.dom.$().select('#system_user-s3ql_log');
-        var $form = Meta.dom.$().select('#system_user-s3ql_remount-form');
-        var $id = $form.select('input[name="id"]');
-        $id.val(params.user);
+        var $a = Meta.dom.$().select('#system_user-s3ql_remount');
+        $a.data('user', params.user);
 
-        $form.on('submit', function(){
-            var $submit = $form.select('input[type="submit"]');
-            $submit.attr('disabled','disabled');
+        var pending = 0;
+        $a.on('submit', function(){
+            if (pending) {
+                return false;
+            }
+
+            pending = 1;
             $log.text('');
             Meta.jsonrpc.push({
                 method:'systemuser.s3ql_remount',
                 params:{
-                    user:$id.val()
+                    user:Meta.string.$($id.data('user')).toInt()
                 },
                 callback:function(v){
-                    $submit.attr('disabled',null);
+                    pending = 0;
                     var err = v.error;
                     if (err) {
                         site.log.errors(err);

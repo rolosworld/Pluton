@@ -1,0 +1,25 @@
+<div class="icon-block" name="schedule">
+  <h4 class="center brown-text">Schedule{{#schedules.method_name}}: {{schedules.method_name}}{{/schedules.method_name}}</h4>
+  <p class="light">
+
+    <div id="schedule-form-container">
+      {{#schedules.method.add}}
+          {{> schedule-form}}
+      {{/schedules.method.add}}
+    </div>
+
+    {{^schedules.method_name}}
+        <p class="light">
+          <a href="#mode=schedule;method=add" class="pluton-menu-item pluton-schedule-add btn">
+            Add Schedule
+          </a>
+        </p>
+
+        <hr/>
+
+        {{#schedules.names}}
+            <a href="#mode=schedule;method=edit;id={{id}}" class="btn" style="text-transform:none;">{{name}}</a>
+        {{/schedules.names}}
+    {{/schedules.method_name}}
+  </p>
+</div>

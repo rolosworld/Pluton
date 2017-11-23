@@ -1,37 +1,45 @@
-package Pluton::Controller::Root;
+package Pluton::SystemUser::Folders;
+use Modern::Perl;
 use Moose;
 use namespace::autoclean;
+use Expect;
 
-BEGIN { extends 'Main::Controller::Root' }
+extends 'Pluton::SystemUser::Methods';
 
-=head2 index
+out $path_regexp = '^(\/[\w^ ]+)+\/?$';
 
-The root page (/)
+our $__ls_schema = {
+    properties => {
+        path => { type => 'string', pattern => $path_regexp, minLength => 1 },
+    }
+};
 
-=cut
+sub __validate_ls {
+    my ($self, $params) = @_;
+    my $validator = Main::JSON::Validator->new;
+    $validator->schema($__ls_schema);
 
-sub index : Path : Args(0) {
-    my ( $self, $c ) = @_;
-    my $data = {
-        config => {
-        },
-    };
+    return $validator->validate($params);
+}
 
-    if ( $c->user_exists ) {
-        # Force login if the system_user_digest is broken
-        if (!$c->session->{system_user_digest} ||
-            !$c->req->cookies->{system_user_digest}) {
-            $self->getObject( 'Account', c => $c )->logout;
-        }
-        else {
-            my $user = $c->user->obj;
-            $$data{user} = $user;
-        }
+sub ls {
+    my ($self, $params) = @_;
+    my $c = $self->c;
+
+    my @errors = $self->__validate_ls($params);
+    if ( $errors[0] ) {
+        $self->jsonrpc_error( \@errors );
     }
 
-    $c->stash->{data}     = $data;
-    $c->stash->{template} = 'index.tmpl';
+    my $path = $$params{path};
+    my $output = $self->run({user => $$params{user}, command => "find '$path' -maxdepth 1 -type d"});
+    my @_output = split("\n", $output);
+    shift @_output;
+
+    return join("\n", @_output);
 }
+
+no Moose;
 
 =head1 NAME
 
@@ -69,7 +77,5 @@ Rolando González Chévere <rolosworld@gmail.com>
  along with Pluton.  If not, see <http://www.gnu.org/licenses/>.
 
 =cut
-
-__PACKAGE__->meta->make_immutable;
 
 1;

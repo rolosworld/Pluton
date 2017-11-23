@@ -1,0 +1,63 @@
+<form action="#" method="post" id="schedule-form">
+  <div>
+    <input type="hidden" name="id" value="{{id}}"/>
+    <input type="text" name="name" placeholder="Name (Max 32, Alphanumeric)" value="{{name}}"/>
+  </div>
+
+  <p class="light">
+    Leaving the field empty means it'll schedule every time for that specific field. Example, if you leave the minute field empty it'll schedule every minute from 0 to 59.
+  </p>
+
+  <div>
+    <label>Minute:</label>
+    <input type="text" name="minute" placeholder="(Min 0, Max 59)" value="{{minute}}"/>
+  </div>
+
+  <div>
+    <label>Hour (24h format):</label>
+    <input type="text" name="hour" placeholder="(Min 0, Max 23)" value="{{hour}}"/>
+  </div>
+
+  <div>
+    <label>Day of Month:</label>
+    <input type="text" name="day_of_month" placeholder="(Min 1, Max 31)" value="{{day_of_month}}"/>
+  </div>
+
+  <div>
+    <label>Month:</label>
+    <select name="month" class="browser-default">
+      <option value="">Every Month</option>
+      <option value="1" {{#month_selected.1}} selected="selected" {{/month_selected.1}}>January</option>
+      <option value="2" {{#month_selected.2}} selected="selected" {{/month_selected.2}}>February</option>
+      <option value="3" {{#month_selected.3}} selected="selected" {{/month_selected.3}}>March</option>
+      <option value="4" {{#month_selected.4}} selected="selected" {{/month_selected.4}}>April</option>
+      <option value="5" {{#month_selected.5}} selected="selected" {{/month_selected.5}}>May</option>
+      <option value="6" {{#month_selected.6}} selected="selected" {{/month_selected.6}}>June</option>
+      <option value="7" {{#month_selected.7}} selected="selected" {{/month_selected.7}}>July</option>
+      <option value="8" {{#month_selected.8}} selected="selected" {{/month_selected.8}}>August</option>
+      <option value="9" {{#month_selected.9}} selected="selected" {{/month_selected.9}}>September</option>
+      <option value="10" {{#month_selected.10}} selected="selected" {{/month_selected.10}}>October</option>
+      <option value="11" {{#month_selected.11}} selected="selected" {{/month_selected.11}}>November</option>
+      <option value="12" {{#month_selected.12}} selected="selected" {{/month_selected.12}}>December</option>
+    </select>
+  </div>
+
+  <div>
+    <label>Day of Week:</label>
+    <select name="day_of_week" class="browser-default">
+      <option value="">Every Day</option>
+      <option value="0" {{#day_of_week_selected.0}} selected="selected" {{/day_of_week_selected.0}}>Sunday</option>
+      <option value="1" {{#day_of_week_selected.1}} selected="selected" {{/day_of_week_selected.1}}>Monday</option>
+      <option value="2" {{#day_of_week_selected.2}} selected="selected" {{/day_of_week_selected.2}}>Tuesday</option>
+      <option value="3" {{#day_of_week_selected.3}} selected="selected" {{/day_of_week_selected.3}}>Wednesday</option>
+      <option value="4" {{#day_of_week_selected.4}} selected="selected" {{/day_of_week_selected.4}}>Thursday</option>
+      <option value="5" {{#day_of_week_selected.5}} selected="selected" {{/day_of_week_selected.5}}>Friday</option>
+      <option value="6" {{#day_of_week_selected.6}} selected="selected" {{/day_of_week_selected.6}}>Saturday</option>
+    </select>
+  </div>
+
+  <input type="submit" value="Save" class="btn"/>
+  <a href="#mode=schedule" class="pluton-menu-item pluton-schedule btn">
+    Cancel
+  </a>
+</form>

@@ -12,7 +12,10 @@
         <input type="password" name="password" placeholder="Password (Min 1, Max 70)"/>
       </div>
 
-      <input type="submit" value="Add"/>
+      <input type="submit" value="Add" class="btn"/>
+      <a href="#mode=system_user" class="pluton-menu-item pluton-system_user btn">
+        Cancel
+      </a>
     </form>
     {{/system_users.method.add}}
 
@@ -21,24 +24,33 @@
       <input type="hidden" name="id"/>
 
       <div>
-        <textarea name="authinfo2"></textarea>
+        *Single quotes are not allowed.
+        <textarea name="authinfo2" class="materialize-textarea"></textarea>
       </div>
 
-      <input type="submit" value="Save"/>
-    </form>
-
-    <form action="#" method="post" id="system_user-s3ql_remount-form">
-      <input type="hidden" name="id"/>
-
-      <input type="submit" value="Re-Mount"/>
+      <input type="submit" value="Save" class="btn"/>
+      <a href="#mode=system_user" class="pluton-menu-item pluton-system_user btn">
+        Cancel
+      </a>
+      <a href="#" class="pluton-menu-item pluton-system_user btn" id="system_user-s3ql_remount">
+        Re-Mount
+      </a>
     </form>
 
     <pre id="system_user-s3ql_log"></pre>
     {{/system_users.method.s3ql}}
 
     {{^system_users.method_name}}
+        <p class="light">
+          <a href="#mode=system_user;method=add" class="pluton-menu-item pluton-system_user-add btn">
+            Add System User
+          </a>
+        </p>
+
+        <hr/>
+
         {{#system_users.users}}
-        <a href="#mode=system_user;method=s3ql;user={{id}}">{{username}}</a>
+            <a href="#mode=system_user;method=s3ql;user={{id}}" class="btn" style="text-transform:none;">{{username}}</a>
         {{/system_users.users}}
     {{/system_users.method_name}}
   </p>
