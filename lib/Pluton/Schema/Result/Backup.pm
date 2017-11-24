@@ -88,6 +88,12 @@ __PACKAGE__->table("backups");
   data_type: 'text'
   is_nullable: 0
 
+=head2 keep
+
+  data_type: 'smallint'
+  default_value: 0
+  is_nullable: 0
+
 =cut
 
 __PACKAGE__->add_columns(
@@ -122,6 +128,8 @@ __PACKAGE__->add_columns(
   { data_type => "varchar", is_nullable => 0, size => 255 },
   "folders",
   { data_type => "text", is_nullable => 0 },
+  "keep",
+  { data_type => "smallint", default_value => 0, is_nullable => 0 },
 );
 
 =head1 PRIMARY KEY
@@ -198,8 +206,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-11-23 11:21:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:XSmI1DCaSGK5khNYohhctg
+# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-11-24 14:20:05
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bC+vr1AdlhIpTFs7VxSExA
 
 sub TO_JSON {
     my ($self) = @_;

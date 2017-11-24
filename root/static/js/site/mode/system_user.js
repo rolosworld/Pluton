@@ -106,7 +106,7 @@ site.mode.system_user = {
         $a.data('user', params.user);
 
         var pending = 0;
-        $a.on('submit', function(){
+        $a.on('click', function(){
             if (pending) {
                 return false;
             }
@@ -116,7 +116,7 @@ site.mode.system_user = {
             Meta.jsonrpc.push({
                 method:'systemuser.s3ql_remount',
                 params:{
-                    user:Meta.string.$($id.data('user')).toInt()
+                    user:Meta.string.$($a.data('user')).toInt()
                 },
                 callback:function(v){
                     pending = 0;

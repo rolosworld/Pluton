@@ -150,29 +150,6 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<schedules_minute_hour_day_of_month_month_day_of_week_key>
-
-=over 4
-
-=item * L</minute>
-
-=item * L</hour>
-
-=item * L</day_of_month>
-
-=item * L</month>
-
-=item * L</day_of_week>
-
-=back
-
-=cut
-
-__PACKAGE__->add_unique_constraint(
-  "schedules_minute_hour_day_of_month_month_day_of_week_key",
-  ["minute", "hour", "day_of_month", "month", "day_of_week"],
-);
-
 =head2 C<schedules_name_key>
 
 =over 4
@@ -218,8 +195,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-11-23 11:21:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:jiuT70D+iXRsO9dtdFLvMA
+# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-11-24 15:25:13
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:uxifs8KhYAFo8PU52i+IiQ
 
 sub TO_JSON {
     my ($self) = @_;

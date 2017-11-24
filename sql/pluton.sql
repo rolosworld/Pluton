@@ -47,8 +47,7 @@ CREATE TABLE schedules (
     "day_of_month" smallint DEFAULT NULL,
     "month" smallint DEFAULT NULL,
     "day_of_week" smallint DEFAULT NULL,
-    UNIQUE( "name" ),
-    UNIQUE( "minute", "hour", "day_of_month", "month", "day_of_week" )
+    UNIQUE( "name" )
 );
 CREATE TRIGGER update_schedules_updated BEFORE UPDATE
     ON schedules FOR EACH ROW EXECUTE PROCEDURE
@@ -65,6 +64,7 @@ CREATE TABLE backups (
     schedule bigint NOT NULL REFERENCES schedules ON DELETE CASCADE,
     "name" character varying(255) NOT NULL,
     folders text NOT NULL,
+    keep smallint NOT NULL DEFAULT 0,
     UNIQUE( "name" )
 );
 CREATE TRIGGER update_backups_updated BEFORE UPDATE

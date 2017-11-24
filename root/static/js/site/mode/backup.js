@@ -3,7 +3,7 @@ site.mode.backup = {
     getData: function(cb) {
         if (!site.data.system_users) {
             site.mode.system_user.getSystemUsers(function(result){
-                site.data.system_users = {names:result};
+                site.data.system_users = {users:result};
             });
         }
 
@@ -85,6 +85,7 @@ site.mode.backup = {
             system_user = $form.select('select[name="system_user"]').val(),
             schedule = $form.select('select[name="schedule"]').val(),
             folders = $form.select('textarea[name="folders"]').val(),
+            keep = $form.select('input[name="keep"]').val(),
             params = {name: name};
 
         if (s.set(id).hasInt()) {
@@ -97,6 +98,10 @@ site.mode.backup = {
 
         if (s.set(schedule).hasInt()) {
             params.schedule = s.toInt();
+        }
+
+        if (s.set(keep).hasInt()) {
+            params.keep = s.toInt();
         }
 
         if (folders) {
@@ -115,7 +120,7 @@ site.mode.backup = {
             }
 
             var data = [];
-            Meta.each(site.data.system_users.names, function(v, i){
+            Meta.each(site.data.system_users.users, function(v, i){
                 delete v.selected;
                 if (backup.system_user.id == v.id) {
                     v.selected = 1;
@@ -123,7 +128,7 @@ site.mode.backup = {
 
                 data.push(v);
             });
-            backup.system_users = {names:data};
+            backup.system_users = {users:data};
 
 
             data = [];

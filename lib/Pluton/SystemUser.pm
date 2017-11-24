@@ -86,7 +86,7 @@ sub add {
     }
 
     # Create authinfo2 file and .pluton folder
-    $$run{command} = 'mkdir -p ~/.s3ql ~/.pluton/backup && touch ~/.s3ql/authinfo2 && chmod 600 ~/.s3ql/authinfo2';
+    $$run{command} = 'mkdir -p ~/.s3ql ~/.pluton/backup ~/.pluton/scripts ~/.pluton/logs && touch ~/.s3ql/authinfo2 && chmod 600 ~/.s3ql/authinfo2';
     $self->expect($run);
 
     my $pass_encrypted = $self->encrypt_password($$params{password});
@@ -190,6 +190,9 @@ sub s3ql_remount {
 
     # mount
     $output .= $self->run({user => $$params{user}, command => "mount.s3ql '$storage_url' ~/.pluton/backup"});
+
+    # Create current and previous folders if they doesn't exist
+    $output .= $self->run({user => $$params{user}, command => "mkdir -p ~/.pluton/backup/current ~/.pluton/backup/previous"});
 
     return $output;
 }

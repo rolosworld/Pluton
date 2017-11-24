@@ -10,7 +10,7 @@ our $__schedule_schema = {
     required   => [qw(name)],
     properties => {
         id => { type => 'integer', minimum => 1, maximum => 10000 },
-        name => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 32 },
+        name => { type => 'string', minLength => 1, maxLength => 80 },
         minute => { type => 'integer', minimum => 0, maximum => 59 },
         hour => { type => 'integer', minimum => 0, maximum => 23 },
         day_of_month => { type => 'integer', minimum => 1, maximum => 31 },

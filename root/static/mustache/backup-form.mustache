@@ -1,7 +1,8 @@
 <form action="#" method="post" id="backup-form">
   <div>
+    <label>Name:</label>
     <input type="hidden" name="id" value="{{id}}"/>
-    <input type="text" name="name" placeholder="Name (Max 32, Alphanumeric)" value="{{name}}"/>
+    <input type="text" name="name" placeholder="(Max 80)" value="{{name}}"/>
   </div>
 
   <div>
@@ -14,11 +15,16 @@
   </div>
 
   <div>
+    <label>Backups to Keep:</label>
+    <input type="text" name="keep" placeholder="(Min 0 Max 100)" value="{{keep}}"/>
+  </div>
+
+<div>
     <label>System User:</label>
     <select name="system_user" class="browser-default">
-      {{#system_users.names}}
+      {{#system_users.users}}
       <option value="{{id}}" {{#selected}}selected="selected" {{/selected}}>{{username}}</option>
-      {{/system_users.names}}
+      {{/system_users.users}}
     </select>
   </div>
 
