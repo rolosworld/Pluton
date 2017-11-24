@@ -208,23 +208,24 @@ sub crontab {
     my $output .= $self->run({user => $user, command => "mkdir -p ~/.pluton/backup/current/$bid ~/.pluton/backup/previous/$bid"});
 
     # Create backup script
+    $output .= $self->run({user => $user, command => "echo '#!/bin/bash' >  ~/.pluton/scripts/$bid.sh"});
+    $output .= $self->run({user => $user, command => "echo 'STAMP=`date +\"%Y-%m-%dT%H-%M-%S\"`' >>  ~/.pluton/scripts/$bid.sh"});
+
+    # Manage previous backups
+    if ($keep) {
+        $output .= $self->run({user => $user, command => "echo 's3qlcp ~/.pluton/backup/current/$bid ~/.pluton/backup/previous/$bid/\${STAMP} &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
+        $output .= $self->run({user => $user, command => "echo 's3qllock ~/.pluton/backup/previous/$bid/\${STAMP} &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
+        $output .= $self->run({user => $user, command => "echo 'KEEP=$keep' >>  ~/.pluton/scripts/$bid.sh"});
+        $output .= $self->run({user => $user, command => "echo 'CURR=`find ~/.pluton/backup/previous/$bid -maxdepth 1 -type d | wc -l`' >>  ~/.pluton/scripts/$bid.sh"});
+        $output .= $self->run({user => $user, command => "echo 'DELTA=\$((CURR-KEEP))' >>  ~/.pluton/scripts/$bid.sh"});
+        $output .= $self->run({user => $user, command => "echo 'if [ \${DELTA} -gt \"1\" ]; then' >>  ~/.pluton/scripts/$bid.sh"});
+        $output .= $self->run({user => $user, command => "echo 'DELTA2=\$((DELTA-1))' >>  ~/.pluton/scripts/$bid.sh"});
+        $output .= $self->run({user => $user, command => "echo 'find ~/.pluton/backup/previous/$bid -maxdepth 1 -type d | sort | head -\${DELTA} | tail -\${DELTA2} | xargs -n1 s3qlrm &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
+        $output .= $self->run({user => $user, command => "echo 'fi' >>  ~/.pluton/scripts/$bid.sh"});
+    }
+
     my @folders = split("\n", $backup->folders);
     foreach my $folder (@folders) {
-        $output .= $self->run({user => $user, command => "echo '#!/bin/bash' >  ~/.pluton/scripts/$bid.sh"});
-        $output .= $self->run({user => $user, command => "echo 'STAMP=`date +\"%Y-%m-%dT%H-%M-%S\"`' >>  ~/.pluton/scripts/$bid.sh"});
-
-        # Manage previous backups
-        if ($keep) {
-            $output .= $self->run({user => $user, command => "echo 's3qlcp ~/.pluton/backup/current/$bid ~/.pluton/backup/previous/$bid/\${STAMP} &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
-            $output .= $self->run({user => $user, command => "echo 's3qllock ~/.pluton/backup/previous/$bid/\${STAMP} &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
-            $output .= $self->run({user => $user, command => "echo 'KEEP=$keep' >>  ~/.pluton/scripts/$bid.sh"});
-            $output .= $self->run({user => $user, command => "echo 'CURR=`find ~/.pluton/backup/previous/$bid -maxdepth 1 -type d | wc -l`' >>  ~/.pluton/scripts/$bid.sh"});
-            $output .= $self->run({user => $user, command => "echo 'DELTA=\$((CURR-KEEP))' >>  ~/.pluton/scripts/$bid.sh"});
-            $output .= $self->run({user => $user, command => "echo 'if [ \${DELTA} -gt \"1\" ]; then' >>  ~/.pluton/scripts/$bid.sh"});
-            $output .= $self->run({user => $user, command => "echo 'DELTA2=\$((DELTA-1))' >>  ~/.pluton/scripts/$bid.sh"});
-            $output .= $self->run({user => $user, command => "echo 'find ~/.pluton/backup/previous/$bid -maxdepth 1 -type d | sort | head -\${DELTA} | tail -\${DELTA2} | xargs -n1 s3qlrm &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
-            $output .= $self->run({user => $user, command => "echo 'fi' >>  ~/.pluton/scripts/$bid.sh"});
-        }
 
         # Try that the destination folder doesn't conflict with some other folder
         my @parts = split('/', $folder);
