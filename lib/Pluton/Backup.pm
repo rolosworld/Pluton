@@ -6,96 +6,176 @@ use Main::JSON::Validator;
 
 extends 'Pluton::SystemUser::Command';
 
-our $__system_user_credentials_schema = {
-    required   => [qw(username password)],
+our $__backup_schema = {
+    required   => [qw(system_user schedule name folders)],
     properties => {
-        username => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 32 },
-        password => { type => 'string', minLength => 1, maxLength => 70 },
+        id => { type => 'integer', minimum => 1, maximum => 10000 },
+        system_user => { type => 'integer', minimum => 1, maximum => 10000 },
+        schedule => { type => 'integer', minimum => 1, maximum => 10000 },
+        name => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 32 },
+        folders => {
+            type => 'array',
+            items => {
+                type => 'string', pattern => '^[ \/\.\w]+$', minLength => 1, maxLength => 255,
+            },
+        },
     }
 };
 
-sub __validate_credentials {
+sub __validate_backup {
     my ($self, $params) = @_;
     my $validator = Main::JSON::Validator->new;
-    $validator->schema($__system_user_credentials_schema);
+    $validator->schema($__backup_schema);
 
     return $validator->validate($params);
+}
+
+sub edit {
+    my ($self, $params) = @_;
+    my $c = $self->c;
+
+    my @errors = $self->__validate_backup($params);
+    if ( $errors[0] ) {
+        $self->jsonrpc_error( \@errors );
+    }
+
+    my $exist = $c->model('DB::SystemUser')->search({
+        id => $$params{system_user},
+        owner => $c->user->id,
+    })->next;
+
+    if ( !$exist ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/system_user',
+                    message => 'System User does not exist',
+                }
+            ]);
+
+        return;
+    }
+
+    $exist = $c->model('DB::Schedule')->search({
+        id => $$params{schedule},
+        creator => $c->user->id,
+    })->next;
+
+    if ( !$exist ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/schedule',
+                    message => 'Schedule does not exist',
+                }
+            ]);
+
+        return;
+    }
+
+
+    $exist = $c->model('DB::Backup')->search({
+        name => $$params{name},
+    })->next;
+
+    if ( $exist && $exist->id != $$params{id}) {
+        # Show values also?
+        $self->jsonrpc_error(
+            [   {   path    => '/name',
+                    message => 'Backup with the same name exist',
+                }
+            ]);
+
+        return;
+    }
+
+    if (!$exist) {
+        $exist = $c->model('DB::Backup')->search({
+            id => $$params{id},
+        })->next;
+    }
+
+    if ( !$exist ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/id',
+                    message => 'Backup does not exist',
+                }
+            ]);
+
+        return;
+    }
+
+    my $values = {
+        creator => $c->user->id,
+        name => $$params{name},
+        system_user => $$params{system_user},
+        schedule => $$params{schedule},
+        folders => join("\n", @{$$params{folders}}),
+    };
+
+    $exist->update($values);
+
+    return $self->list;
 }
 
 sub add {
     my ($self, $params) = @_;
     my $c = $self->c;
 
-    my @errors = $self->__validate_credentials($params);
+    my @errors = $self->__validate_backup($params);
     if ( $errors[0] ) {
         $self->jsonrpc_error( \@errors );
     }
 
-    if ($c->config->{system_users_blacklist}->{$$params{username}}) {
-        $self->jsonrpc_error(
-            [   {   path    => '/username',
-                    message => 'User is blacklisted',
-                }
-            ]);
-
-        return;
-    }
-
     my $exist = $c->model('DB::Backup')->search({
-        owner => $c->user->id,
-        username => $$params{username},
+        name => $$params{name},
     })->next;
 
     if ( $exist ) {
+        # Show values also?
         $self->jsonrpc_error(
-            [   {   path    => '/username',
-                    message => 'User exist in your system users list',
+            [   {   path    => '/name',
+                    message => 'Backup with the same name exist',
                 }
             ]);
 
         return;
     }
 
-    my $run = {
-        username => $$params{username},
-        password => $$params{password},
-        command  => 'whoami',
-    };
-    my $output = $self->expect($run);
-
-    if (!$output) {
-        $self->jsonrpc_error(
-            [   {   path    => '/username',
-                    message => 'Unexpected error when validating OS user',
-                }
-            ]);
-
-        return;
-    }
-
-    my @_output = split("\n", $output);
-
-    if (scalar( @_output ) < 2 && $_output[1] ne $$params{username}) {
-        $self->jsonrpc_error(
-            [   {   path    => '/username',
-                    message => 'User doesn\'t exist in the OS',
-                }
-            ]);
-
-        return;
-    }
-
-    # Create authinfo2 file and .pluton folder
-    $$run{command} = 'mkdir -p ~/.s3ql ~/.pluton/backup && touch ~/.s3ql/authinfo2 && chmod 600 ~/.s3ql/authinfo2';
-    $self->expect($run);
-
-    my $pass_encrypted = $self->encrypt_password($$params{password});
-
-    $c->model('DB::Backup')->create({
+    $exist = $c->model('DB::SystemUser')->search({
+        id => $$params{system_user},
         owner => $c->user->id,
-        username => $$params{username},
-        password => $pass_encrypted,
-    });
+    })->next;
+
+    if ( !$exist ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/system_user',
+                    message => 'System User does not exist',
+                }
+            ]);
+
+        return;
+    }
+
+    $exist = $c->model('DB::Schedule')->search({
+        id => $$params{schedule},
+        creator => $c->user->id,
+    })->next;
+
+    if ( !$exist ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/schedule',
+                    message => 'Schedule does not exist',
+                }
+            ]);
+
+        return;
+    }
+
+    my $values = {
+        creator => $c->user->id,
+        name => $$params{name},
+        system_user => $$params{system_user},
+        schedule => $$params{schedule},
+        folders => join("\n", @{$$params{folders}}),
+    };
+    $c->model('DB::Backup')->create($values);
 
     return $self->list;
 }
@@ -104,104 +184,11 @@ sub list {
     my ($self) = @_;
     my $c = $self->c;
 
-    my @sys_users = $c->model('DB::Backup')->search({
-        owner => $c->user->id,
+    my @backups = $c->model('DB::Backup')->search({
+        creator => $c->user->id,
     })->all;
 
-    return \@sys_users;
-}
-
-our $__system_user_s3ql_schema = {
-    properties => {
-        authinfo2 => { type => 'string', minLength => 1 },
-    }
-};
-
-sub __validate_s3ql {
-    my ($self, $params) = @_;
-    my $validator = Main::JSON::Validator->new;
-    $validator->schema($__system_user_s3ql_schema);
-
-    return $validator->validate($params);
-}
-
-sub s3ql {
-    my ($self, $params) = @_;
-    my $c = $self->c;
-
-    my @errors = $self->__validate_s3ql($params);
-    if ( $errors[0] ) {
-        $self->jsonrpc_error( \@errors );
-    }
-
-    if ($$params{authinfo2}) {
-        # Fill the file with the content, line per line
-        my $authinfo2 = $$params{authinfo2};
-
-        # Don't allow single quotes
-        $authinfo2 =~ s/'//g;
-        my @content = split("\n", $authinfo2);
-        foreach my $row (@content) {
-            $self->run({command => "echo '$row' >> ~/.s3ql/authinfo2"});
-        }
-    }
-
-    # Get the content of the file
-    my $output = $self->run({user => $$params{user}, command => "cat ~/.s3ql/authinfo2"});
-
-    my @_output = split("\n", $output);
-    shift @_output;
-
-    return join("\n", @_output);
-}
-
-sub s3ql_remount {
-    my ($self, $params) = @_;
-    my $c = $self->c;
-
-    # Get the content of the file
-    my $output = $self->run({user => $$params{user}, command => "cat ~/.s3ql/authinfo2"});
-    my @_output = split("\n", $output);
-    shift @_output;
-
-    my $storage_url;
-    foreach my $row (@_output) {
-        my @parts = split(' ', $row);
-        if ($parts[0] eq 'storage-url:') {
-            $storage_url = $parts[1];
-            last;
-        }
-    }
-
-    if (!$storage_url) {
-        $self->jsonrpc_error(
-            [   {   path    => '/user',
-                    message => 'No storage-url found on the s3ql configuration',
-                }
-            ]);
-        return;
-    }
-
-    # umount first
-    $output = $self->run({user => $$params{user}, command => "umount.s3ql ~/.pluton/backup"});
-
-    # fsck
-    $output .= $self->run({user => $$params{user}, command => "fsck.s3ql --force '$storage_url'"});
-
-    # mount
-    $output .= $self->run({user => $$params{user}, command => "mount.s3ql '$storage_url' ~/.pluton/backup"});
-
-    return $output;
-}
-
-sub s3qlstat {
-    my ($self, $params) = @_;
-    my $c = $self->c;
-
-    my $output = $self->run({user => $$params{user}, command => "s3qlstat ~/.pluton/backup"});
-    my @_output = split("\n", $output);
-
-    return join("\n", @_output);
+    return \@backups;
 }
 
 no Moose;

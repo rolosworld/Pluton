@@ -1,24 +1,68 @@
 site.mode.system_user = {
-    init: function(params) {
-        site.emptyDoms();
-
-        var method = params.method;
+    params:{},
+    getData: function(cb) {
         if (!site.data.system_users) {
             site.data.system_users = {};
         }
+
+        var method = this.params.method;
         site.data.system_users.method = {};
         if (method) {
             site.data.system_users.method[method] = 1;
         }
         site.data.system_users.method_name = method;
 
+        if (!site.data.system_users.users) {
+            this.getSystemUsers(function(result){
+                site.data.system_users.users = result;
+                cb(site.data);
+            });
+            Meta.jsonrpc.execute();
+            return;
+        }
+
+        cb(site.data);
+    },
+    getSystemUsers: function(cb) {
+        Meta.jsonrpc.push({
+            method:'systemuser.list',
+            params:{},
+            callback:function(v){
+                var err = v.error;
+                if (err) {
+                    site.log.errors(err);
+                    return false;
+                }
+
+                if (v.result) {
+                    cb(v.result);
+                    return true;
+                }
+
+                return false;
+            }
+        });
+    },
+    init: function(params) {
+        var me = site.mode.system_user;
+        site.emptyDoms();
+        me.params = params;
+
         site.mode.home.initLeft();
         site.log.init();
-        site.mode.system_user.initMiddle(params);
-        site.mode.system_user.processMethod(method, params);
-        site.showDoms();
+
+        me.getData(function() {
+            me.initMiddle();
+
+            var methods = me.methods;
+            if (methods[params.method]) {
+                methods[params.method](params);
+            }
+
+            site.showDoms();
+        });
     },
-    initMiddle: function(params) {
+    initMiddle: function() {
         site.doms.middle.append(site.mustache.render('system_user', site.data));
     },
     s3ql: function(authinfo2_val) {
@@ -145,35 +189,11 @@ site.mode.system_user = {
             });
         },
         list: function() {
-            if (!site.data.system_users.users) {
-                Meta.jsonrpc.push({
-                    method:'systemuser.list',
-                    params:{},
-                    callback:function(v){
-                        var err = v.error;
-                        if (err) {
-                            site.log.errors(err);
-                            return false;
-                        }
-
-                        if (v.result) {
-                            site.data.system_users.users = v.result;
-                            site.switchMode('system_user');
-                            return true;
-                        }
-
-                        return false;
-                    }
-                }).execute();
-            }
+            site.mode.system_user.getSystemUsers(function(result){
+                site.data.system_users.users = v.result;
+                site.switchMode('system_user');
+            });
+            Meta.jsonrpc.execute();
         }
-    },
-    processMethod: function(method, params) {
-        var methods = site.mode.system_user.methods;
-        if (!methods[method]) {
-            method = 'list';
-        }
-
-        methods[method](params);
     }
 };

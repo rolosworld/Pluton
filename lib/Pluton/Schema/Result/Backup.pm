@@ -204,6 +204,8 @@ __PACKAGE__->belongs_to(
 sub TO_JSON {
     my ($self) = @_;
     my $data = {$self->get_columns};
+    $$data{system_user} = $self->system_user;
+    $$data{schedule} = $self->schedule;
     return $data;
 }
 

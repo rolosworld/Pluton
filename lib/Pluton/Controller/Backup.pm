@@ -4,6 +4,15 @@ use namespace::autoclean;
 
 BEGIN { extends 'Main::Controller' }
 
+=head2 edit
+
+=cut
+
+sub edit : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'Backup', c => $c )->edit($params);
+}
+
 =head2 add
 
 =cut

@@ -319,7 +319,7 @@ Meta.inherit=function(a,b,c)
 /**
  <function name="Meta.each" type="bool">
  <param name="a" type="array">Array to loop</param>
- <param name="f" type="function">Callback function, its called with this as the value and can accept index and value attributes, function(index,value)</param>
+ <param name="f" type="function">Callback function, its called with this as the value and can accept index and value attributes, function(value,index)</param>
  <param name="[m]" type="bool">Method flag, default is numerical</param>
  <desc>
    Execute given function on each array value, if the call returns false it breaks the loop.

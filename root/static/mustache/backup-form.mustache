@@ -1,0 +1,34 @@
+<form action="#" method="post" id="backup-form">
+  <div>
+    <input type="hidden" name="id" value="{{id}}"/>
+    <input type="text" name="name" placeholder="Name (Max 32, Alphanumeric)" value="{{name}}"/>
+  </div>
+
+  <div>
+    <label>Schedule:</label>
+    <select name="schedule" class="browser-default">
+      {{#schedules.names}}
+      <option value="{{id}}" {{#selected}}selected="selected" {{/selected}}>{{name}}</option>
+      {{/schedules.names}}
+    </select>
+  </div>
+
+  <div>
+    <label>System User:</label>
+    <select name="system_user" class="browser-default">
+      {{#system_users.names}}
+      <option value="{{id}}" {{#selected}}selected="selected" {{/selected}}>{{username}}</option>
+      {{/system_users.names}}
+    </select>
+  </div>
+
+  <div>
+    <label>Folders:</label>
+    <textarea name="folders" class="materialize-textarea" style="overflow:auto;">{{folders}}</textarea>
+  </div>
+
+  <input type="submit" value="Save" class="btn"/>
+  <a href="#mode=backup" class="pluton-menu-item pluton-backup btn">
+    Cancel
+  </a>
+</form>
