@@ -53,7 +53,7 @@ site.mode.backup = {
 
                 return false;
             }
-        }).execute();
+        });
     },
     init: function(params) {
         var me = site.mode.backup;
@@ -84,7 +84,6 @@ site.mode.backup = {
             name = $form.select('input[name="name"]').val(),
             system_user = $form.select('select[name="system_user"]').val(),
             schedule = $form.select('select[name="schedule"]').val(),
-            folders = $form.select('textarea[name="folders"]').val(),
             keep = $form.select('input[name="keep"]').val(),
             params = {name: name};
 
@@ -104,11 +103,63 @@ site.mode.backup = {
             params.keep = s.toInt();
         }
 
-        if (folders) {
-            params.folders = folders.split("\n");
-        }
+        var folders = [];
+        $form.select('#container-__').select('input[type="checkbox"]').forEach(function(v) {
+            if (v.checked) {
+                folders.push(v.value);
+            }
+        });
+        params.folders = folders;
 
         return params;
+    },
+    loadFolders: function(user, path, cb) {
+        var params = {
+            user:Meta.string.$(user).toInt()
+        };
+        if (path) {
+            params.path = path;
+        }
+        site.mode.system_user.getFolders(params, function(folders){
+            Meta.each(folders, function(folder, i) {
+                var name = folder.split('/');
+                name = name[name.length - 1];
+                var path = folder.substring(2);
+                folders[i] = {
+                    name: name,
+                    path: path,
+                    id: path.replace(/[\ \.\/]/g,'_')
+                };
+            });
+
+            var pid = path ? 'container-' + path.replace(/[\ \.\/]/g,'_') : 'folders-container';
+            var $container = Meta.dom.$().select('#' + pid);
+            if (folders.length) {
+                $container.inner(site.mustache.render('folders', {folders:folders}));
+                $container.select('input[type="checkbox"]').on('change', function() {
+                    if (this.checked) {
+                        Meta.dom.$().select('#container-' + this.value.replace(/[\ \.\/]/g,'_')).empty();
+                    }
+                    return true;
+                });
+                $container.select('a').on('click', function() {
+                    var $a = Meta.dom.$(this);
+                    var checkbox = $a.parent().parent().select('input[type="checkbox"]').get(0);
+                    if (!checkbox || !checkbox.checked) {
+                        site.mode.backup.loadFolders(user, $a.data('path'));
+                        Meta.jsonrpc.execute();
+                    }
+                    return false;
+                });
+            }
+            else {
+                $container.inner('<div>Empty</div>');
+            }
+
+            if (cb) {
+                cb();
+            }
+        });
     },
     methods: {
         edit: function(params) {
@@ -175,6 +226,40 @@ site.mode.backup = {
                 }).execute();
                 return false;
             });
+
+            // Folders loaders
+            var folders = backup.folders.split("\n");
+            var pending = {};
+            var queue = Meta.queue.$(function(){
+                Meta.each(folders, function(folder) {
+                    $container.select('#' + folder.replace(/[\ \.\/]/g,'_')).get(0).checked = true;
+                });
+            });
+
+            var $system_user = Meta.dom.$().select('select[name="system_user"]');
+            site.mode.backup.loadFolders(backup.system_user.id);
+            $system_user.on('change', function() {
+                site.mode.backup.loadFolders(Meta.dom.$(this).val());
+                Meta.jsonrpc.execute();
+            });
+
+            Meta.each(folders, function(folder) {
+                var parts = folder.split('/');
+                var j = 0;
+                var path = '';
+                for (; j < parts.length - 1; j++) {
+                    path += parts[j];
+                    if (!pending[path]) {
+                        queue.increase();
+                        site.mode.backup.loadFolders(backup.system_user.id, path, function() {
+                            queue.decrease();
+                        });
+                        pending[path] = 1;
+                    }
+                    path += '/';
+                }
+            });
+            Meta.jsonrpc.execute();
         },
         add: function() {
             var $form = Meta.dom.$().select('#backup-form');
@@ -205,6 +290,15 @@ site.mode.backup = {
                     }
                 }).execute();
                 return false;
+            });
+
+            // Folders loaders
+            var $system_user = Meta.dom.$().select('select[name="system_user"]');
+            site.mode.backup.loadFolders($system_user.val());
+            Meta.jsonrpc.execute();
+            $system_user.on('change', function() {
+                site.mode.backup.loadFolders($system_user.val());
+                Meta.jsonrpc.execute();
             });
         },
         list: function() {

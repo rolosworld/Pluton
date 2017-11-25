@@ -207,6 +207,54 @@ sub s3qlstat {
     return join("\n", @_output);
 }
 
+our $__system_user_path_schema = {
+    properties => {
+        path => { type => 'string', pattern => '^[ \/\-\w]+$', minLength => 1, maxLength => 255, },
+    }
+};
+
+sub __validate_path {
+    my ($self, $params) = @_;
+    my $validator = Main::JSON::Validator->new;
+    $validator->schema($__system_user_path_schema);
+
+    return $validator->validate($params);
+}
+
+sub folders {
+    my ($self, $params) = @_;
+    my $c = $self->c;
+
+    my @errors = $self->__validate_path($params);
+    if ( $errors[0] ) {
+        $self->jsonrpc_error( \@errors );
+    }
+
+    my $path = $$params{path};
+
+    if (defined $path) {
+        my @parts = split('/', $path);
+        foreach my $part (@parts) {
+            unless ($part =~ /[ \-\w]/) {
+                $self->jsonrpc_error(
+                    [   {   path    => '/path',
+                            message => 'Invalid path',
+                        }
+                    ]);
+                last;
+            }
+        }
+    }
+
+    $path = $path || '';
+    my $output = $self->run({user => $$params{user}, command => "find './$path' -maxdepth 1 -type d -regex '\.[/0-9a-zA-Z_ -]+'"});
+    my @_output = split("\n", $output);
+    shift @_output;
+    shift @_output;
+
+    return \@_output;
+}
+
 no Moose;
 
 =head1 NAME

@@ -40,6 +40,15 @@ sub s3ql_remount : Remote {
     return $self->getObject( 'SystemUser', c => $c )->s3ql_remount( $params );
 }
 
+=head2 folders
+
+=cut
+
+sub folders : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->folders( $params );
+}
+
 =encoding utf8
 
 =head1 AUTHOR

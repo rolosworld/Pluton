@@ -67,12 +67,6 @@ Meta.jsonrpc.on('send', function() {
     }
 });
 
-Meta.jsonrpc.on('account.register:TRUE', function() {
-    if (site.data.user) {
-        site.websocket.init();
-    }
-});
-
 Meta.jsonrpc.on('account.login:TRUE', function() {
     if (site.data.user) {
         site.websocket.init();

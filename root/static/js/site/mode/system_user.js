@@ -43,6 +43,26 @@ site.mode.system_user = {
             }
         });
     },
+    getFolders: function(params, cb) {
+        Meta.jsonrpc.push({
+            method:'systemuser.folders',
+            params:params,
+            callback:function(v){
+                var err = v.error;
+                if (err) {
+                    site.log.errors(err);
+                    return false;
+                }
+
+                if (v.result) {
+                    cb(v.result);
+                    return true;
+                }
+
+                return false;
+            }
+        });
+    },
     init: function(params) {
         var me = site.mode.system_user;
         site.emptyDoms();

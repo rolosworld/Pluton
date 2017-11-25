@@ -57,3 +57,7 @@ footer.page-footer {
 #system_user-s3ql-form textarea {
     height: 300px;
 }
+
+#folders-container div {
+    margin-left: 10px;
+}

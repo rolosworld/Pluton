@@ -92,6 +92,7 @@ sub expect {
 
     my @parameters = ('-c', $command, '-', $system_user);
 
+    $c->log->debug($command);
     if (!$exp->spawn('su', @parameters)) {
         $c->log->error("Cannot spawn $command: $!");
         return;

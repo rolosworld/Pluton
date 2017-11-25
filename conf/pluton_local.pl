@@ -73,6 +73,8 @@
             'schedule-form' => '/static/mustache/schedule-form.mustache',
             backup => '/static/mustache/backup.mustache',
             'backup-form' => '/static/mustache/backup-form.mustache',
+            folders => '/static/mustache/folders.mustache',
+            folder => '/static/mustache/folder.mustache',
         },
     }
 }

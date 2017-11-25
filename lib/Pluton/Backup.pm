@@ -16,8 +16,9 @@ our $__backup_schema = {
         name => { type => 'string', minLength => 1, maxLength => 80 },
         folders => {
             type => 'array',
+            minItems => 1,
             items => {
-                type => 'string', pattern => '^[ \/\.\-\w]+$', minLength => 1, maxLength => 255,
+                type => 'string', pattern => '^[ \/\-\w]+$', minLength => 2, maxLength => 255,
             },
         },
     }
@@ -256,7 +257,9 @@ sub crontab {
     }
 
     # Add new crontab line
-    my $schedule = $backup->schedule;
+    my $schedule = $c->model('DB::Schedule')->search({
+        id => $backup->get_column('schedule'),
+    })->next;
 
     my $minute = $schedule->minute;
     my $hour = $schedule->hour;
