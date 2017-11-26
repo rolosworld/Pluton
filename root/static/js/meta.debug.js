@@ -1019,7 +1019,17 @@ Meta.queue=Meta(Meta.core).extend(
    </method>
    */
     decrease: function(){
-        this.cnt--;
+        if (!--this.cnt) {
+            this._();
+        }
+    },
+
+  /**
+   <method name="tryRun" type="void">
+   <desc>Try running the callback</desc>
+   </method>
+   */
+    tryRun: function(){
         if (!this.cnt) {
             this._();
         }

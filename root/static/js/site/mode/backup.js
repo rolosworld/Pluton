@@ -1,15 +1,23 @@
 site.mode.backup = {
     params:{},
     getData: function(cb) {
+        var queue = Meta.queue.$(function() {
+            cb(site.data);
+        });
+
         if (!site.data.system_users) {
+            queue.increase();
             site.mode.system_user.getSystemUsers(function(result){
                 site.data.system_users = {users:result};
+                queue.decrease();
             });
         }
 
         if (!site.data.schedule) {
+            queue.increase();
             site.mode.schedule.getSchedules(function(result){
                 site.data.schedules = {names:result};
+                queue.decrease();
             });
         }
 
@@ -25,15 +33,14 @@ site.mode.backup = {
         site.data.backups.method_name = method;
 
         if (!site.data.backups.names) {
+            queue.increase();
             this.getBackups(function(result){
                 site.data.backups.names = result;
-                cb(site.data);
+                queue.decrease();
             });
-            Meta.jsonrpc.execute();
-            return;
         }
-
-        cb(site.data);
+        Meta.jsonrpc.execute();
+        queue.tryRun();
     },
     getBackups: function(cb) {
         Meta.jsonrpc.push({
@@ -104,7 +111,7 @@ site.mode.backup = {
         }
 
         var folders = [];
-        $form.select('#container-__').select('input[type="checkbox"]').forEach(function(v) {
+        $form.select('#folders-container').select('input[type="checkbox"]').forEach(function(v) {
             if (v.checked) {
                 folders.push(v.value);
             }
@@ -112,6 +119,26 @@ site.mode.backup = {
         params.folders = folders;
 
         return params;
+    },
+    getSources: function(backup, cb) {
+        Meta.jsonrpc.push({
+            method:'backup.sources',
+            params:{backup:backup},
+            callback:function(v){
+                var err = v.error;
+                if (err) {
+                    site.log.errors(err);
+                    return false;
+                }
+
+                if (v.result) {
+                    cb(v.result);
+                    return true;
+                }
+
+                return false;
+            }
+        });
     },
     loadFolders: function(user, path, cb) {
         var params = {
@@ -135,7 +162,10 @@ site.mode.backup = {
             var pid = path ? 'container-' + path.replace(/[\ \.\/]/g,'_') : 'folders-container';
             var $container = Meta.dom.$().select('#' + pid);
             if (folders.length) {
-                $container.inner(site.mustache.render('folders', {folders:folders}));
+                $container.inner(site.mustache.render('folders', {
+                    folders:folders,
+                    type:'checkbox'
+                }));
                 $container.select('input[type="checkbox"]').on('change', function() {
                     if (this.checked) {
                         Meta.dom.$().select('#container-' + this.value.replace(/[\ \.\/]/g,'_')).empty();
@@ -307,12 +337,6 @@ site.mode.backup = {
                 site.switchMode('backup');
             });
             Meta.jsonrpc.execute();
-        }
-    },
-    processMethod: function(method, params) {
-        var methods = site.mode.backup.methods;
-        if (methods[method]) {
-            methods[method](params);
         }
     }
 };

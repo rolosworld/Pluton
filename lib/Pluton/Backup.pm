@@ -284,8 +284,124 @@ sub crontab {
     return $output;
 }
 
-# Restore backup:
-#     rsync -avh ~/.pluton/backup/previous/<backup_id>/<YYYYMMDDHHMMSS> ~/'<dest_folder>'  &>> ~/.pluton/logs/<backup_id>.log
+
+our $__backup_restore_schema = {
+    required   => [qw(backup destination)],
+    properties => {
+        backup => { type => 'integer', minimum => 1, maximum => 10000 },
+        source => { type => 'string', pattern => '^[\-\w]+$', minLength => 19, maxLength => 19, },
+        destination => { type => 'string', pattern => '^[ \/\-\w]+$', minLength => 2, maxLength => 255 },
+    }
+};
+
+sub __validate_restore {
+    my ($self, $params) = @_;
+    my $validator = Main::JSON::Validator->new;
+    $validator->schema($__backup_restore_schema);
+
+    return $validator->validate($params);
+}
+
+sub restore {
+    my ($self, $params) = @_;
+    my $c = $self->c;
+
+    my @errors = $self->__validate_restore($params);
+    if ( $errors[0] ) {
+        $self->jsonrpc_error( \@errors );
+    }
+
+    my $backup = $c->model('DB::Backup')->search({
+        id => $$params{backup},
+    })->next;
+
+    if ( !$backup ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/backup',
+                    message => 'Backup does not exist',
+                }
+            ]);
+
+        return;
+    }
+
+    my $path = $$params{destination};
+    if (defined $path) {
+        my @parts = split('/', $path);
+        foreach my $part (@parts) {
+            unless ($part =~ /[ \-\w]/) {
+                $self->jsonrpc_error(
+                    [   {   path    => '/destination',
+                            message => 'Invalid path',
+                        }
+                    ]);
+                last;
+            }
+        }
+    }
+
+    # Restore backup:
+    my $dest = $$params{destination};
+    my $source = $$params{source};
+    my $bid = $backup->id;
+
+    # No date means we use the current backup
+    my $src = "current/$bid";
+    if ($source) {
+        $src = "previous/$bid/$source";
+    }
+    my $output = $self->run({user => $backup->system_user->id, command => "rsync -avh ~/.pluton/backup/$src ~/'$dest'  &>> ~/.pluton/logs/$bid.log"});
+    my @_output = split("\n", $output);
+    return \@_output;
+}
+
+our $__backup_sources_schema = {
+    required   => [qw(backup)],
+    properties => {
+        backup => { type => 'integer', minimum => 1, maximum => 10000 },
+    }
+};
+
+sub __validate_sources {
+    my ($self, $params) = @_;
+    my $validator = Main::JSON::Validator->new;
+    $validator->schema($__backup_sources_schema);
+
+    return $validator->validate($params);
+}
+
+sub sources {
+    my ($self, $params) = @_;
+    my $c = $self->c;
+
+    my @errors = $self->__validate_sources($params);
+    if ( $errors[0] ) {
+        $self->jsonrpc_error( \@errors );
+    }
+
+    my $backup = $c->model('DB::Backup')->search({
+        id => $$params{backup},
+    })->next;
+
+    if ( !$backup ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/backup',
+                    message => 'Backup does not exist',
+                }
+            ]);
+
+        return;
+    }
+
+    my $bid = $backup->id;
+    my $path = ".pluton/backup/previous/$bid";
+    my $output = $self->run({user => $backup->system_user->id, command => "find '$path' -maxdepth 1 -type d -regex '\.[/0-9a-zA-Z_ -]+' | cut -f 5 -d '/'"});
+    my @_output = split("\n", $output);
+    shift @_output;
+    shift @_output;
+
+    return \@_output;
+}
 
 no Moose;
 

@@ -1,0 +1,23 @@
+<form action="#" method="post" id="restore-form">
+  <input type="hidden" name="backup" value="{{id}}"/>
+
+<div>
+    <label>Source:</label>
+    <select name="source" class="browser-default">
+      <option value="">Current</option>
+      {{#backups.sources}}
+      <option value="{{.}}">{{.}}</option>
+      {{/backups.sources}}
+    </select>
+  </div>
+
+  <div>
+    <label>Destination:</label>
+    <div id="folders-container"></div>
+  </div>
+
+  <input type="submit" value="Save" class="btn"/>
+  <a href="#mode=restore" class="pluton-menu-item pluton-restore btn">
+    Cancel
+  </a>
+</form>

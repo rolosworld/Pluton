@@ -54,6 +54,7 @@
                /static/js/site/mode/system_user.js
                /static/js/site/mode/schedule.js
                /static/js/site/mode/backup.js
+               /static/js/site/mode/restore.js
                /static/js/site/init.js
                /static/js/site/mustache.js
                /static/js/site/login.js
@@ -73,6 +74,8 @@
             'schedule-form' => '/static/mustache/schedule-form.mustache',
             backup => '/static/mustache/backup.mustache',
             'backup-form' => '/static/mustache/backup-form.mustache',
+            restore => '/static/mustache/restore.mustache',
+            'restore-form' => '/static/mustache/restore-form.mustache',
             folders => '/static/mustache/folders.mustache',
             folder => '/static/mustache/folder.mustache',
         },

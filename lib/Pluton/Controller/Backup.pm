@@ -31,6 +31,24 @@ sub list : Remote {
     return $self->getObject( 'Backup', c => $c )->list;
 }
 
+=head2 restore
+
+=cut
+
+sub restore : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'Backup', c => $c )->restore($params);
+}
+
+=head2 sources
+
+=cut
+
+sub sources : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'Backup', c => $c )->sources($params);
+}
+
 =encoding utf8
 
 =head1 AUTHOR

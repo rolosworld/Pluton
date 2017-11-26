@@ -1,0 +1,17 @@
+<div class="icon-block" name="restore">
+  <h4 class="center brown-text">Restore</h4>
+  <p class="light">
+
+    <div id="restore-form-container">
+      {{#restores.method.process}}
+          {{> restore-form}}
+      {{/restores.method.process}}
+    </div>
+
+    {{^restores.method_name}}
+        {{#backups.names}}
+            <a href="#mode=restore;method=process;id={{id}}" class="btn" style="text-transform:none;">{{name}}</a>
+        {{/backups.names}}
+    {{/restores.method_name}}
+  </p>
+</div>
