@@ -5,7 +5,7 @@ use namespace::autoclean;
 use Main::JSON::Validator;
 use Crypt::CBC;
 use Expect;
-use MIME::Base64;
+use MIME::Base64 ();
 
 extends 'Main::Module';
 
@@ -15,7 +15,7 @@ sub encrypt_password {
 
     my $key = $c->session->{system_user_digest} . $c->req->cookies->{system_user_digest}->value;
     my $cipher = Crypt::CBC->new( -key    => $key, -cipher => 'Blowfish' );
-    return encode_base64($cipher->encrypt( $pass ));
+    return MIME::Base64::encode_base64($cipher->encrypt( $pass ));
 }
 
 sub decrypt_password {
@@ -24,7 +24,7 @@ sub decrypt_password {
 
     my $key = $c->session->{system_user_digest} . $c->req->cookies->{system_user_digest}->value;
     my $cipher = Crypt::CBC->new( -key    => $key, -cipher => 'Blowfish' );
-    return $cipher->decrypt(decode_base64($pass));
+    return $cipher->decrypt(MIME::Base64::decode_base64($pass));
 }
 
 
@@ -74,11 +74,11 @@ sub run {
         command  => $$params{command},
     };
 
-    my $output = $self->expect($run);
+    my $output = $self->raw($run);
     return $output;
 }
 
-sub expect {
+sub raw {
     my ($self, $params) = @_;
     my $c = $self->c;
 

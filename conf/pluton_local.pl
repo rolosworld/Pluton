@@ -50,11 +50,16 @@
                /static/js/mustache.js
                /static/js/site/_.js
                /static/js/site/log.js
-               /static/js/site/mode/home.js
-               /static/js/site/mode/system_user.js
-               /static/js/site/mode/schedule.js
-               /static/js/site/mode/backup.js
-               /static/js/site/mode/restore.js
+               /static/js/site/mode/admin/home.js
+               /static/js/site/mode/admin/system_user.js
+               /static/js/site/mode/admin/schedule.js
+               /static/js/site/mode/admin/backup.js
+               /static/js/site/mode/admin/restore.js
+               /static/js/site/mode/user/home.js
+               /static/js/site/mode/user/system_user.js
+               /static/js/site/mode/user/schedule.js
+               /static/js/site/mode/user/backup.js
+               /static/js/site/mode/user/restore.js
                /static/js/site/init.js
                /static/js/site/mustache.js
                /static/js/site/login.js

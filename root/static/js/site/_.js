@@ -2,7 +2,10 @@ if (!window['site']) {
     site = {};
 }
 site.$ = Meta.dom.$();
-site.mode = {};
+site.mode = {
+    admin:{},
+    user:{}
+};
 site.events = Meta(Meta.events).extend({
     events:{},
 });

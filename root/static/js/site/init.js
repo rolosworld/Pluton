@@ -41,11 +41,11 @@ site.showDoms = function() {
 
 site.processHash = function(hash) {
     var data = site.parseHash(hash || location.hash);
-    if (!site.data.user || !data.mode || !site.mode[data.mode]) {
+    if (!site.data.user || !data.mode || !site.getMode(data.mode)) {
         data.mode = 'home';
     }
 
-    site.mode[data.mode].init( data );
+    site.getMode(data.mode).init( data );
     site.data.mode = data.mode;
     window.scrollTo(0, site.doms.middle.get(0).offsetTop);
 };
@@ -53,4 +53,13 @@ site.processHash = function(hash) {
 site.switchMode = function(mode) {
     delete site.data.mode;
     site.processHash('#mode=' + mode);
+};
+
+site.getMode = function(mode) {
+    if (site.data.user && site.data.user.roles.admin) {
+        return site.mode.admin[mode];
+    }
+    else {
+        return site.mode.user[mode];
+    }
 };

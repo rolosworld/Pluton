@@ -73,6 +73,7 @@ sub edit {
 
 
     $exist = $c->model('DB::Backup')->search({
+        creator => $c->user->id,
         name => $$params{name},
     })->next;
 
@@ -128,6 +129,7 @@ sub add {
     }
 
     my $exist = $c->model('DB::Backup')->search({
+        creator => $c->user->id,
         name => $$params{name},
     })->next;
 

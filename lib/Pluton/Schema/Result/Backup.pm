@@ -146,9 +146,11 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<backups_name_key>
+=head2 C<backups_creator_name_key>
 
 =over 4
+
+=item * L</creator>
 
 =item * L</name>
 
@@ -156,7 +158,7 @@ __PACKAGE__->set_primary_key("id");
 
 =cut
 
-__PACKAGE__->add_unique_constraint("backups_name_key", ["name"]);
+__PACKAGE__->add_unique_constraint("backups_creator_name_key", ["creator", "name"]);
 
 =head1 RELATIONS
 
@@ -206,8 +208,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-11-24 14:20:05
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:bC+vr1AdlhIpTFs7VxSExA
+# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-11-28 20:34:50
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MPEGZQjrKbu17fHiWRqZOw
 
 sub TO_JSON {
     my ($self) = @_;

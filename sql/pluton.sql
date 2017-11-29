@@ -6,6 +6,7 @@ INSERT INTO path_authorizations ("path") VALUES
 ;
 
 INSERT INTO path_authorizations ("role","path") VALUES
+    (2, '/user'),
     (2, '/ws')
 ;
 
@@ -65,7 +66,7 @@ CREATE TABLE backups (
     "name" character varying(255) NOT NULL,
     folders text NOT NULL,
     keep smallint NOT NULL DEFAULT 0,
-    UNIQUE( "name" )
+    UNIQUE( "creator","name" )
 );
 CREATE TRIGGER update_backups_updated BEFORE UPDATE
     ON backups FOR EACH ROW EXECUTE PROCEDURE

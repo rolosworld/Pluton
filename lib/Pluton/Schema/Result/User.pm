@@ -221,8 +221,18 @@ with 'Main::DBMethods::User';
 sub TO_JSON {
     my ($self) = @_;
     my $data = {$self->get_columns};
-    delete $$data{token};
     delete $$data{password};
+
+    $$data{roles} = {};
+    my @memberships = $self->memberships({},{prefetch => 'role'});
+    foreach my $membership (@memberships) {
+        my $role = $membership->role->name;
+        $$data{roles}{$role} = 1;
+    }
+
+    if ($$data{roles}{user}) {
+        $$data{system_user} = $self->system_users->next;
+    }
     return $data;
 }
 

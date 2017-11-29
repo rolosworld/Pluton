@@ -1,8 +1,12 @@
 <div class="icon-block">
-  <!--<h4 class="center brown-text"><i class="material-icons">Menu</i></h4>-->
   <p class="light">
     <a href="#mode=system_user" class="pluton-menu-item pluton-system_user">
-      System Users
+      {{#user.roles.admin}}
+          System Users
+      {{/user.roles.admin}}
+      {{#user.roles.user}}
+          Configuration
+      {{/user.roles.user}}
     </a>
   </p>
   <p class="light">

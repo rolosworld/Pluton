@@ -10,7 +10,7 @@ our $__system_user_credentials_schema = {
     required   => [qw(username password)],
     properties => {
         username => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 32 },
-        password => { type => 'string', minLength => 1, maxLength => 70 },
+        password => { type => 'string', pattern => '^[^\n^\r.]+$', minLength => 1, maxLength => 70 },
     }
 };
 
@@ -61,7 +61,7 @@ sub add {
         password => $$params{password},
         command  => 'whoami',
     };
-    my $output = $self->expect($run);
+    my $output = $self->raw($run);
 
     if (!$output) {
         $self->jsonrpc_error(
@@ -87,7 +87,7 @@ sub add {
 
     # Create authinfo2 file and .pluton folder
     $$run{command} = 'mkdir -p ~/.s3ql ~/.pluton/backup ~/.pluton/scripts ~/.pluton/logs && touch ~/.s3ql/authinfo2 && chmod 600 ~/.s3ql/authinfo2';
-    $self->expect($run);
+    $self->raw($run);
 
     my $pass_encrypted = $self->encrypt_password($$params{password});
 
@@ -141,8 +141,9 @@ sub s3ql {
         # Don't allow single quotes
         $authinfo2 =~ s/'//g;
         my @content = split("\n", $authinfo2);
+        $self->run({user => $$params{user}, command => "cat /dev/null > ~/.s3ql/authinfo2"});
         foreach my $row (@content) {
-            $self->run({command => "echo '$row' >> ~/.s3ql/authinfo2"});
+            $self->run({user => $$params{user}, command => "echo '$row' >> ~/.s3ql/authinfo2"});
         }
     }
 
