@@ -1,5 +1,9 @@
 <div class="icon-block" name="system_user">
-  <h4 class="center brown-text">System Users{{#system_users.method_name}}: {{system_users.method_name}}{{/system_users.method_name}}</h4>
+  <h4 class="center brown-text">
+    {{#user.roles.user}}Configuration{{/user.roles.user}}
+    {{#user.roles.admin}}System Users{{/user.roles.admin}}
+    {{#system_users.method_name}}: {{system_users.method_name}}{{/system_users.method_name}}
+  </h4>
   <p class="light">
 
     {{#system_users.method.add}}
