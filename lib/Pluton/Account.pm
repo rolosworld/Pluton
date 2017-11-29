@@ -208,6 +208,12 @@ sub login {
         }
     }
     else {
+        my $su = $self->getObject( 'SystemUser::Command', c => $c);
+        my $run = {
+            username => $$params{username},
+            password => $$params{password},
+            command  => 'mkdir -p ~/.s3ql ~/.pluton/backup ~/.pluton/scripts ~/.pluton/logs && touch ~/.s3ql/authinfo2 && chmod 600 ~/.s3ql/authinfo2',
+        };
         $c->model('DB::SystemUser')->create({
             owner => $user->id,
             username => $$params{username},
