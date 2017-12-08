@@ -117,6 +117,7 @@ requires 'MIME::Base64::URLSafe';
 requires 'MIME::Base32';
 requires 'AnyEvent::WebSocket::Client';
 requires 'Crypt::Blowfish';
+requires 'Data::Validate::URI';
 
 test_requires 'Test::More' => '0.88';
 catalyst;

@@ -111,6 +111,17 @@ sub list {
     return \@sys_users;
 }
 
+sub list_mounts {
+    my ($self) = @_;
+    my $c = $self->c;
+
+    my @mounts = $c->model('DB::Mount')->search({
+        creator => $c->user->id,
+    })->all;
+
+    return \@mounts;
+}
+
 our $__system_user_s3ql_schema = {
     properties => {
         authinfo2 => { type => 'string', minLength => 1 },
@@ -254,6 +265,62 @@ sub folders {
     shift @_output;
 
     return \@_output;
+}
+
+our $__system_user_mounts_schema = {
+    required   => [qw(name type storage_url fs_passphrase)],
+    properties => {
+        name => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 255 },
+        type => { enum => [qw(generic gs s3 s3c b2 swift swiftks rackspace local)]},
+        storage_url => { type => 'string', format => 'uri', maxLength => 255 },
+        backend_login => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 255 },
+        backend_password => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 255 },
+        fs_passphrase => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 255 },
+    }
+};
+
+sub __validate_mounts {
+    my ($self, $params) = @_;
+    my $validator = Main::JSON::Validator->new;
+    $validator->schema($__system_user_mounts_schema);
+
+    return $validator->validate($params);
+}
+
+sub add_mount {
+    my ($self, $params) = @_;
+    my $c = $self->c;
+
+    my @errors = $self->__validate_mounts($params);
+    if ( $errors[0] ) {
+        $self->jsonrpc_error( \@errors );
+    }
+
+    my $exist = $c->model('DB::Mount')->search({
+        creator => $c->user->id,
+        name => $$params{name},
+    })->next;
+
+    if ( $exist ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/name',
+                    message => 'Mount exist in your mounts list',
+                }
+            ]);
+
+        return;
+    }
+
+    $c->model('DB::Mount')->create({
+        creator => $c->user->id,
+        name => $$params{name},
+        storage_url => $$params{storage_url},
+        backend_login => $$params{backend_login},
+        backend_password => $$params{backend_password},
+        fs_passphrase => $$params{fs_passphrase},
+    });
+
+    return $self->list_mounts;
 }
 
 no Moose;

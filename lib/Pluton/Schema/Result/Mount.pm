@@ -1,12 +1,12 @@
 use utf8;
-package Pluton::Schema::Result::Schedule;
+package Pluton::Schema::Result::Mount;
 
 # Created by DBIx::Class::Schema::Loader
 # DO NOT MODIFY THE FIRST PART OF THIS FILE
 
 =head1 NAME
 
-Pluton::Schema::Result::Schedule
+Pluton::Schema::Result::Mount
 
 =cut
 
@@ -30,11 +30,11 @@ extends 'DBIx::Class::Core';
 
 __PACKAGE__->load_components("InflateColumn::DateTime");
 
-=head1 TABLE: C<schedules>
+=head1 TABLE: C<mounts>
 
 =cut
 
-__PACKAGE__->table("schedules");
+__PACKAGE__->table("mounts");
 
 =head1 ACCESSORS
 
@@ -43,7 +43,7 @@ __PACKAGE__->table("schedules");
   data_type: 'bigint'
   is_auto_increment: 1
   is_nullable: 0
-  sequence: 'schedules_id_seq'
+  sequence: 'mounts_id_seq'
 
 =head2 created
 
@@ -69,32 +69,33 @@ __PACKAGE__->table("schedules");
 
   data_type: 'varchar'
   is_nullable: 0
+  size: 32
+
+=head2 storage_url
+
+  data_type: 'varchar'
+  is_nullable: 0
   size: 255
 
-=head2 minute
+=head2 backend_login
 
-  data_type: 'smallint'
+  data_type: 'varchar'
+  default_value: null
   is_nullable: 1
+  size: 255
 
-=head2 hour
+=head2 backend_password
 
-  data_type: 'smallint'
+  data_type: 'varchar'
+  default_value: null
   is_nullable: 1
+  size: 255
 
-=head2 day_of_month
+=head2 fs_passphrase
 
-  data_type: 'smallint'
-  is_nullable: 1
-
-=head2 month
-
-  data_type: 'smallint'
-  is_nullable: 1
-
-=head2 day_of_week
-
-  data_type: 'smallint'
-  is_nullable: 1
+  data_type: 'varchar'
+  is_nullable: 0
+  size: 255
 
 =cut
 
@@ -104,7 +105,7 @@ __PACKAGE__->add_columns(
     data_type         => "bigint",
     is_auto_increment => 1,
     is_nullable       => 0,
-    sequence          => "schedules_id_seq",
+    sequence          => "mounts_id_seq",
   },
   "created",
   {
@@ -123,17 +124,25 @@ __PACKAGE__->add_columns(
   "creator",
   { data_type => "bigint", is_foreign_key => 1, is_nullable => 0 },
   "name",
+  { data_type => "varchar", is_nullable => 0, size => 32 },
+  "storage_url",
   { data_type => "varchar", is_nullable => 0, size => 255 },
-  "minute",
-  { data_type => "smallint", is_nullable => 1 },
-  "hour",
-  { data_type => "smallint", is_nullable => 1 },
-  "day_of_month",
-  { data_type => "smallint", is_nullable => 1 },
-  "month",
-  { data_type => "smallint", is_nullable => 1 },
-  "day_of_week",
-  { data_type => "smallint", is_nullable => 1 },
+  "backend_login",
+  {
+    data_type => "varchar",
+    default_value => \"null",
+    is_nullable => 1,
+    size => 255,
+  },
+  "backend_password",
+  {
+    data_type => "varchar",
+    default_value => \"null",
+    is_nullable => 1,
+    size => 255,
+  },
+  "fs_passphrase",
+  { data_type => "varchar", is_nullable => 0, size => 255 },
 );
 
 =head1 PRIMARY KEY
@@ -150,7 +159,7 @@ __PACKAGE__->set_primary_key("id");
 
 =head1 UNIQUE CONSTRAINTS
 
-=head2 C<schedules_creator_name_key>
+=head2 C<mounts_creator_name_key>
 
 =over 4
 
@@ -162,24 +171,9 @@ __PACKAGE__->set_primary_key("id");
 
 =cut
 
-__PACKAGE__->add_unique_constraint("schedules_creator_name_key", ["creator", "name"]);
+__PACKAGE__->add_unique_constraint("mounts_creator_name_key", ["creator", "name"]);
 
 =head1 RELATIONS
-
-=head2 backups
-
-Type: has_many
-
-Related object: L<Pluton::Schema::Result::Backup>
-
-=cut
-
-__PACKAGE__->has_many(
-  "backups",
-  "Pluton::Schema::Result::Backup",
-  { "foreign.schedule" => "self.id" },
-  { cascade_copy => 0, cascade_delete => 0 },
-);
 
 =head2 creator
 
@@ -197,25 +191,12 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-12-03 16:03:55
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:AZJUofBPKlXNvYbNvvsIbw
+# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-12-05 20:51:28
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:1W8p6dzZ3zgMbUvge4uv1w
 
 sub TO_JSON {
     my ($self) = @_;
     my $data = {$self->get_columns};
-
-    if (defined $$data{month}) {
-        $$data{month_selected} = {
-            $$data{month} => 1,
-        };
-    }
-
-    if (defined $$data{day_of_week}) {
-        $$data{day_of_week_selected} = {
-            $$data{day_of_week} => 1,
-        };
-    }
-
     return $data;
 }
 

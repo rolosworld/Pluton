@@ -40,7 +40,7 @@ site.showDoms = function() {
 };
 
 site.processHash = function(hash) {
-    var data = site.parseHash(hash || location.hash);
+    var data = site.data.params = site.parseHash(hash || location.hash);
     if (!site.data.user || !data.mode || !site.getMode(data.mode)) {
         data.mode = 'home';
     }

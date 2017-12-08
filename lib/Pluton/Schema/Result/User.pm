@@ -167,6 +167,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 mounts
+
+Type: has_many
+
+Related object: L<Pluton::Schema::Result::Mount>
+
+=cut
+
+__PACKAGE__->has_many(
+  "mounts",
+  "Pluton::Schema::Result::Mount",
+  { "foreign.creator" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 schedules
 
 Type: has_many
@@ -213,8 +228,8 @@ __PACKAGE__->has_many(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-11-23 11:21:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:wGzyQlzQ3O4t8SvKITA9sw
+# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-12-05 20:51:28
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:jM1SDs9gUfhFQ6lLMNIKpA
 
 with 'Main::DBMethods::User';
 

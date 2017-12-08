@@ -1,0 +1,9 @@
+<a href="#mode=system_user;method=add" class="pluton-menu-item pluton-system_user-add btn">
+  Add System User
+</a>
+
+<hr/>
+
+{{#system_users.users}}
+<a href="#mode=system_user;method=configuration;user={{id}}" class="btn" style="text-transform:none;">{{username}}</a>
+{{/system_users.users}}

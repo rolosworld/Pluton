@@ -1,0 +1,35 @@
+<div>
+  <!--
+      s3c://<hostname>:<port>/<bucketname>/<prefix>
+      Here bucketname is the name of an (existing) bucket, and prefix can be an arbitrary prefix that will be prepended to all object names used by S3QL.
+      This allows you to store several S3QL file systems in the same bucket.
+  -->
+  <input type="hidden" name="storage-url" value="{{storage_url}}"/>
+  <label>Hostname:</label>
+  <input type="text" name="hostname" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{hostname}}"/>
+  <label>Port:</label>
+  <input type="text" name="port" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{port}}"/>
+  <label>Bucket Name:</label>
+  <input type="text" name="bucketname" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{bucketname}}"/>
+  <label>Prefix:</label>
+  <input type="text" name="prefix" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{prefix}}"/>
+</div>
+
+<div>
+  <!--
+      Note that the backend login and password for accessing S3 are not the user id and password that you use to log into the Amazon Webpage,
+      but the AWS access key id and AWS secret access key shown under 
+  -->
+  <label>AWS Access Key ID:</label>
+  <input type="text" name="backend-login" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{backend_login}}"/>
+</div>
+
+<div>
+  <label>AWS Secret Access Key:</label>
+  <input type="text" name="backend-password" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{backend_password}}"/>
+</div>
+
+<div>
+  <label>Filesystem Passphrase:</label>
+  <input type="text" name="fs-passphrase" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{fs_passphrase}}"/>
+</div>

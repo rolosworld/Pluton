@@ -3,6 +3,7 @@ use Modern::Perl;
 use Moose;
 use namespace::autoclean;
 use Email::Valid;
+use Data::Validate::URI ();
 
 extends 'JSON::Validator';
 
@@ -12,6 +13,9 @@ sub _build_formats {
     my $formats = $self->SUPER::_build_formats;
     $formats->{email} = sub {
         return $__email_validator->address($_[0]);
+    };
+    $formats->{uri} = sub {
+        return Data::Validate::URI->new->is_uri($_[0]);
     };
     return $formats;
 }

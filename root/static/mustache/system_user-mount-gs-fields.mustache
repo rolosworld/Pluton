@@ -1,0 +1,23 @@
+<div>
+  <label>Bucket Name:</label>
+  <!-- gs://<bucketname>/<prefix> -->
+  <input type="hidden" name="storage-url" value="{{storage_url}}"/>
+  <input type="text" name="bucketname" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{bucketname}}"/>
+  <label>Prefix:</label>
+  <input type="text" name="prefix" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{prefix}}"/>
+</div>
+
+<div>
+  <label>Access Key:</label>
+  <input type="text" name="backend-login" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{backend_login}}"/>
+</div>
+
+<div>
+  <label>Access Secret:</label>
+  <input type="text" name="backend-password" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{backend_password}}"/>
+</div>
+
+<div>
+  <label>Filesystem Passphrase:</label>
+  <input type="text" name="fs-passphrase" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{fs_passphrase}}"/>
+</div>

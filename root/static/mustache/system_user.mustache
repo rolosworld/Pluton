@@ -4,60 +4,7 @@
     {{#user.roles.admin}}System Users{{/user.roles.admin}}
     {{#system_users.method_name}}: {{system_users.method_name}}{{/system_users.method_name}}
   </h4>
-  <p class="light">
-
-    {{#system_users.method.add}}
-    <form action="#" method="post" id="system_user-add-form">
-      <div>
-        <input type="text" name="username" placeholder="Username (Max 32, Alphanumeric)" autocomplete="off"/>
-      </div>
-
-      <div>
-        <input type="password" name="password" placeholder="Password (Min 1, Max 70)" autocomplete="off"/>
-      </div>
-
-      <input type="submit" value="Add" class="btn"/>
-      <a href="#mode=system_user" class="pluton-menu-item pluton-system_user btn">
-        Cancel
-      </a>
-    </form>
-    {{/system_users.method.add}}
-
-    {{#system_users.method.s3ql}}
-    <form action="#" method="post" id="system_user-s3ql-form">
-      <input type="hidden" name="id"/>
-
-      <div>
-        *Single quotes are not allowed.
-        <textarea name="authinfo2" class="materialize-textarea" style="overflow:auto;"></textarea>
-      </div>
-
-      <input type="submit" value="Save" class="btn"/>
-      {{#user.roles.admin}}
-          <a href="#mode=system_user" class="pluton-menu-item pluton-system_user btn">
-            Cancel
-          </a>
-      {{/user.roles.admin}}
-      <a href="#" class="pluton-menu-item pluton-system_user btn" id="system_user-s3ql_remount">
-        Re-Mount
-      </a>
-    </form>
-
-    <pre id="system_user-s3ql_log"></pre>
-    {{/system_users.method.s3ql}}
-
-    {{^system_users.method_name}}
-        <p class="light">
-          <a href="#mode=system_user;method=add" class="pluton-menu-item pluton-system_user-add btn">
-            Add System User
-          </a>
-        </p>
-
-        <hr/>
-
-        {{#system_users.users}}
-            <a href="#mode=system_user;method=s3ql;user={{id}}" class="btn" style="text-transform:none;">{{username}}</a>
-        {{/system_users.users}}
-    {{/system_users.method_name}}
-  </p>
+  <div class="light" id="system_user-container">
+    {{> system_user-list}}
+  </div>
 </div>

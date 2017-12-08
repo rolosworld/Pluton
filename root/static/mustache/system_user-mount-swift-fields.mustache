@@ -1,0 +1,38 @@
+<div>
+  <!--
+      There are two different storage URL for the OpenStack backend that make use of different authentication APIs.
+      For legacy (v1) authentication, the storage URL is
+
+swift://<hostname>[:<port>]/<container>[/<prefix>]
+
+  -->
+  <input type="hidden" name="storage-url" value="{{storage_url}}"/>
+  <label>Domain:</label>
+  <input type="text" name="domain" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{domain}}"/>
+  <label>Port:</label>
+  <input type="text" name="port" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{port}}"/>
+  <label>Container:</label>
+  <input type="text" name="container" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{container}}"/>
+  <label>Prefix:</label>
+  <input type="text" name="prefix" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{prefixl}}"/>
+</div>
+
+<div>
+  <!--<label>Backend Login:</label>-->
+  <input type="hidden" name="backend-login" value="{{backend_login}}"/>
+  <label>Tenant:</label>
+  <input type="text" name="tenant" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{tenant}}"/>
+  <label>Username:</label>
+  <input type="text" name="username" placeholder="Username (Max 32, Alphanumeric)" autocomplete="off" value="{{username}}"/>
+</div>
+
+<div>
+  <!--<label>Backend Password:</label>-->
+  <label>Keystone Password:</label>
+  <input type="text" name="backend-password" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{backend_password}}"/>
+</div>
+
+<div>
+  <label>Filesystem Passphrase:</label>
+  <input type="text" name="fs-passphrase" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{fs_passphrase}}"/>
+</div>

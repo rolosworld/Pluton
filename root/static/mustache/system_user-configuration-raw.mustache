@@ -1,0 +1,21 @@
+<form action="#" method="post" id="system_user-s3ql-form">
+  <input type="hidden" name="id"/>
+
+  <div>
+    *Single quotes are not allowed. This configuration will be ovewritten if a mount location gets added or edited.
+    <hr/>
+    <textarea name="authinfo2" class="materialize-textarea" style="overflow:auto;"></textarea>
+  </div>
+
+  <input type="submit" value="Save" class="btn"/>
+  {{#user.roles.admin}}
+  <a href="#mode=system_user;method=configuration;user={{params.user}}" class="pluton-menu-item pluton-system_user btn">
+    Cancel
+  </a>
+  {{/user.roles.admin}}
+  <a href="#" class="pluton-menu-item pluton-system_user btn" id="system_user-s3ql_remount">
+    Re-Mount
+  </a>
+</form>
+
+<pre id="system_user-s3ql_log"></pre>

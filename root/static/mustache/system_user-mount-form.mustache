@@ -1,0 +1,38 @@
+<form action="#" method="post" id="system_user-mount-form">
+  <div>
+    <label>Name:</label>
+    <input type="text" name="name" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{name}}"/>
+  </div>
+
+  <div>
+    <label>Type:</label>
+    <select name="type" class="browser-default">
+      <option value="generic" {{#type.generic}}selected="selected" {{/type.generic}}>Generic</option>
+      <option value="gs" {{#type.gs}}selected="selected" {{/type.gs}}>Google</option>
+      <option value="s3" {{#type.s3}}selected="selected" {{/type.s3}}>Amazon S3</option>
+      <option value="s3c" {{#type.s3c}}selected="selected" {{/type.s3c}}>S3 Compatible</option>
+      <option value="b2" {{#type.b2}}selected="selected" {{/type.b2}}>Black Blaze</option>
+      <option value="swift" {{#type.swift}}selected="selected" {{/type.swift}}>Swift</option>
+      <option value="swiftks" {{#type.swiftks}}selected="selected" {{/type.swiftks}}>Swift v2</option>
+      <option value="rackspace" {{#type.rackspace}}selected="selected" {{/type.rackspace}}>Rackspace Cloud</option>
+      <option value="local" {{#type.local}}selected="selected" {{/type.local}}>Local</option>
+    </select>
+  </div>
+
+  <div id="system_user-mount-fields-container">
+    {{#type.generic}}{{> system_user-mount-generic-fields}}{{/type.generic}}
+    {{#type.gs}}{{> system_user-mount-gs-fields}}{{/type.gs}}
+    {{#type.s3}}{{> system_user-mount-s3-fields}}{{/type.s3}}
+    {{#type.s3c}}{{> system_user-mount-s3c-fields}}{{/type.s3c}}
+    {{#type.b2}}{{> system_user-mount-b2-fields}}{{/type.b2}}
+    {{#type.swift}}{{> system_user-mount-swift-fields}}{{/type.swift}}
+    {{#type.swiftks}}{{> system_user-mount-swiftks-fields}}{{/type.swiftks}}
+    {{#type.rackspace}}{{> system_user-mount-rackspace-fields}}{{/type.rackspace}}
+    {{#type.local}}{{> system_user-mount-local-fields}}{{/type.local}}
+  </div>
+
+  <input type="submit" value="Add" class="btn"/>
+  <a href="#mode=system_user;method=configuration;user={{params.user}}" class="pluton-menu-item pluton-system_user btn">
+    Cancel
+  </a>
+</form>

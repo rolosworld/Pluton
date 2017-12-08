@@ -38,6 +38,7 @@ sub edit {
 
     my $exist = $c->model('DB::Schedule')->search({
         name => $$params{name},
+        creator => $c->user->id,
     })->next;
 
     if ( $exist && $exist->id != $$params{id}) {
@@ -91,6 +92,7 @@ sub add {
 
     my $exist = $c->model('DB::Schedule')->search({
         name => $$params{name},
+        creator => $c->user->id,
     })->next;
 
     if ( $exist ) {
@@ -122,7 +124,9 @@ sub list {
     my ($self) = @_;
     my $c = $self->c;
 
-    my @schedules = $c->model('DB::Schedule')->all;
+    my @schedules = $c->model('DB::Schedule')->search({
+        creator => $c->user->id,
+    })->all;
     return \@schedules;
 }
 

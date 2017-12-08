@@ -13,6 +13,15 @@ sub add : Remote {
     return $self->getObject( 'SystemUser', c => $c )->add($params);
 }
 
+=head2 addmount
+
+=cut
+
+sub addmount : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->add_mount($params);
+}
+
 =head2 list
 
 =cut
@@ -20,6 +29,15 @@ sub add : Remote {
 sub list : Remote {
     my ( $self, $c, $params ) = @_;
     return $self->getObject( 'SystemUser', c => $c )->list;
+}
+
+=head2 list_mounts
+
+=cut
+
+sub list_mounts : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->list_mounts;
 }
 
 =head2 s3ql

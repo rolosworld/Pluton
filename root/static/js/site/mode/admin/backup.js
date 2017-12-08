@@ -110,12 +110,7 @@ site.mode.admin.backup = {
             params.keep = s.toInt();
         }
 
-        var folders = [];
-        $form.select('#folders-container').select('input[type="checkbox"]').forEach(function(v) {
-            if (v.checked) {
-                folders.push(v.value);
-            }
-        });
+        var folders = $form.select('#folders-container').select('input:checked').val();
         params.folders = folders;
 
         return params;
@@ -197,6 +192,7 @@ site.mode.admin.backup = {
             for (var i = 0; i < backups.length; i++) {
                 if (backups[i].id == params.id) {
                     backup = backups[i];
+                    break;
                 }
             }
 

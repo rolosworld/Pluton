@@ -23,7 +23,7 @@
        info={
          name:"Meta",
          author:"Rolando González, rolosworld@gmail.com",
-         version:"2016.06.22" // Year.Month.Day
+         version:"2017.12.03" // Year.Month.Day
        };
 
 /*
@@ -1357,7 +1357,7 @@ Meta.string=Meta(Meta.core).extend({
    <desc>Returns true if there's an int on the string, else returns false.</desc>
    <test>
    <![CDATA[
-     return Meta.string.$("1a2b3").hasInt()=="123";
+     return Meta.string.$("1a2b3").hasInt()===true;
    ]]>
    </test>
    </method>
@@ -3811,6 +3811,20 @@ Meta.dom=Meta(Meta.domevent).extend(function()
       return i;
     },
 
+    _values: function(n) {
+      if (n.nodeName=='SELECT') {
+        if (n.multiple) {
+            n=n.options;
+            var a = [];
+            for(i in n)
+              if(n[i].selected)a.push(n[i].value);
+            return a;
+        }
+        return n.options[n.selectedIndex].value;
+      }
+      return n.value||null;
+    },
+
     /**
      <method name="val" type="mixed">
      <param name="[v]" type="string">Value to set</param>
@@ -3840,6 +3854,7 @@ Meta.dom=Meta(Meta.domevent).extend(function()
     val:function(v)
     {
       var i,
+          me=this,
           a=[],
           b,
           x=this._,
@@ -3872,23 +3887,17 @@ Meta.dom=Meta(Meta.domevent).extend(function()
             w.value=v;
         }
 
-        return this;
+        return me;
       }
 
       if(!j)
         return null;
 
-      v=x[0];
-      
-      if(v.nodeName!='SELECT')
-        return v.value||null;
-      
-      if(!v.multiple)
-        return v.options[v.selectedIndex].value;
+      if(j==1)
+        return me._values(x[0]);
 
-      v=v.options;
-      for(i in v)
-        if(v[i].selected)a.push(v[i].value);
+      for(i=0;i<j;i++)
+        a.push(me._values(x[i]));
       return a;
     },
 
