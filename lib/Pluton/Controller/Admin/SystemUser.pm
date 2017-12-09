@@ -22,6 +22,24 @@ sub addmount : Remote {
     return $self->getObject( 'SystemUser', c => $c )->add_mount($params);
 }
 
+=head2 rmmount
+
+=cut
+
+sub rmmount : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->rm_mount($params);
+}
+
+=head2 editmount
+
+=cut
+
+sub editmount : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->edit_mount($params);
+}
+
 =head2 list
 
 =cut

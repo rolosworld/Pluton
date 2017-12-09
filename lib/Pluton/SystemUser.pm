@@ -268,12 +268,11 @@ sub folders {
 }
 
 our $__system_user_mounts_schema = {
-    required   => [qw(name type storage_url fs_passphrase)],
+    required   => [qw(name storage_url fs_passphrase)],
     properties => {
         name => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 255 },
-        type => { enum => [qw(generic gs s3 s3c b2 swift swiftks rackspace local)]},
         storage_url => { type => 'string', format => 'uri', maxLength => 255 },
-        backend_login => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 255 },
+        backend_login => { type => 'string', pattern => '^[\w\:]+$', minLength => 1, maxLength => 255 },
         backend_password => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 255 },
         fs_passphrase => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 255 },
     }
@@ -313,6 +312,65 @@ sub add_mount {
 
     $c->model('DB::Mount')->create({
         creator => $c->user->id,
+        name => $$params{name},
+        storage_url => $$params{storage_url},
+        backend_login => $$params{backend_login},
+        backend_password => $$params{backend_password},
+        fs_passphrase => $$params{fs_passphrase},
+    });
+
+    return $self->list_mounts;
+}
+
+sub rm_mount {
+    my ($self, $params) = @_;
+    my $c = $self->c;
+
+    my $exist = $c->model('DB::Mount')->search({
+        creator => $c->user->id,
+        id => $$params{id},
+    })->next;
+
+    if ( !$exist ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/id',
+                    message => 'Mount does not exist',
+                }
+            ]);
+
+        return;
+    }
+
+    $exist->delete;
+
+    return $self->list_mounts;
+}
+
+sub edit_mount {
+    my ($self, $params) = @_;
+    my $c = $self->c;
+
+    my @errors = $self->__validate_mounts($params);
+    if ( $errors[0] ) {
+        $self->jsonrpc_error( \@errors );
+    }
+
+    my $exist = $c->model('DB::Mount')->search({
+        creator => $c->user->id,
+        id => $$params{id},
+    })->next;
+
+    if ( !$exist ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/id',
+                    message => 'Mount does not exist',
+                }
+            ]);
+
+        return;
+    }
+
+    $exist->update({
         name => $$params{name},
         storage_url => $$params{storage_url},
         backend_login => $$params{backend_login},

@@ -2,6 +2,7 @@ if (!window['site']) {
     site = {};
 }
 site.$ = Meta.dom.$();
+site.mounts = {};
 site.mode = {
     admin:{},
     user:{}

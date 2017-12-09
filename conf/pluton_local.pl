@@ -50,6 +50,14 @@
                /static/js/mustache.js
                /static/js/site/_.js
                /static/js/site/log.js
+               /static/js/site/mounts/swift.js
+               /static/js/site/mounts/swiftks.js
+               /static/js/site/mounts/gs.js
+               /static/js/site/mounts/s3.js
+               /static/js/site/mounts/s3c.js
+               /static/js/site/mounts/b2.js
+               /static/js/site/mounts/rackspace.js
+               /static/js/site/mounts/local.js
                /static/js/site/mode/admin/home.js
                /static/js/site/mode/admin/system_user.js
                /static/js/site/mode/admin/schedule.js
