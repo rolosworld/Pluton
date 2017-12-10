@@ -13,6 +13,15 @@ sub add : Remote {
     return $self->getObject( 'SystemUser', c => $c )->add($params);
 }
 
+=head2 rm
+
+=cut
+
+sub rm : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->rm($params);
+}
+
 =head2 addmount
 
 =cut
@@ -40,6 +49,24 @@ sub editmount : Remote {
     return $self->getObject( 'SystemUser', c => $c )->edit_mount($params);
 }
 
+=head2 mountauthinfo2
+
+=cut
+
+sub mountauthinfo2 : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->mount_authinfo2($params);
+}
+
+=head2 mountremount
+
+=cut
+
+sub mountremount : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->mount_remount($params);
+}
+
 =head2 list
 
 =cut
@@ -55,7 +82,7 @@ sub list : Remote {
 
 sub list_mounts : Remote {
     my ( $self, $c, $params ) = @_;
-    return $self->getObject( 'SystemUser', c => $c )->list_mounts;
+    return $self->getObject( 'SystemUser', c => $c )->list_mounts($params);
 }
 
 =head2 s3ql
@@ -71,10 +98,10 @@ sub s3ql : Remote {
 
 =cut
 
-sub s3ql_remount : Remote {
-    my ( $self, $c, $params ) = @_;
-    return $self->getObject( 'SystemUser', c => $c )->s3ql_remount( $params );
-}
+#sub s3ql_remount : Remote {
+#    my ( $self, $c, $params ) = @_;
+#    return $self->getObject( 'SystemUser', c => $c )->s3ql_remount( $params );
+#}
 
 =head2 folders
 

@@ -154,6 +154,21 @@ __PACKAGE__->has_many(
   { cascade_copy => 0, cascade_delete => 0 },
 );
 
+=head2 mounts
+
+Type: has_many
+
+Related object: L<Pluton::Schema::Result::Mount>
+
+=cut
+
+__PACKAGE__->has_many(
+  "mounts",
+  "Pluton::Schema::Result::Mount",
+  { "foreign.system_user" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 owner
 
 Type: belongs_to
@@ -170,8 +185,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-11-23 11:21:08
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:/AodrIiarwLFXw0bYhBlcw
+# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-12-09 13:43:05
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:KkzML+plrxlZCtMZSkeoaw
 
 sub TO_JSON {
     my ($self) = @_;

@@ -33,6 +33,14 @@
   </div>
 
   <input type="submit" value="{{#id}}Update{{/id}}{{^id}}Add{{/id}}" class="btn"/>
+  {{#id}}
+  <a href="#" id="system_user-mount-generate_authinfo2" class="pluton-menu-item pluton-system_user btn">
+    Generate Authinfo2
+  </a>
+  <a href="#" id="system_user-mount-generate_remount" class="pluton-menu-item pluton-system_user btn">
+    Mount
+  </a>
+  {{/id}}
   <a href="#mode=system_user;method=configuration;user={{params.user}}" class="pluton-menu-item pluton-system_user btn">
     Cancel
   </a>
@@ -42,3 +50,4 @@
   </a>
   {{/id}}
 </form>
+<pre id="system_user-mount_log"></pre>

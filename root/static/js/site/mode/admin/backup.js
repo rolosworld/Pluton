@@ -5,21 +5,19 @@ site.mode.admin.backup = {
             cb(site.data);
         });
 
-        if (!site.data.system_users) {
-            queue.increase();
-            site.mode.admin.system_user.getSystemUsers(function(result){
-                site.data.system_users = {users:result};
-                queue.decrease();
-            });
-        }
+        site.data.system_users = {};
 
-        if (!site.data.schedule) {
-            queue.increase();
-            site.mode.admin.schedule.getSchedules(function(result){
-                site.data.schedules = {names:result};
-                queue.decrease();
-            });
-        }
+        queue.increase();
+        site.mode.admin.system_user.getSystemUsers(function(result){
+            site.data.system_users.users = result;
+            queue.decrease();
+        });
+
+        queue.increase();
+        site.mode.admin.schedule.getSchedules(function(result){
+            site.data.schedules = {names:result};
+            queue.decrease();
+        });
 
         if (!site.data.backups) {
             site.data.backups = {};
@@ -32,13 +30,12 @@ site.mode.admin.backup = {
         }
         site.data.backups.method_name = method;
 
-        if (!site.data.backups.names) {
-            queue.increase();
-            this.getBackups(function(result){
-                site.data.backups.names = result;
-                queue.decrease();
-            });
-        }
+        queue.increase();
+        this.getBackups(function(result){
+            site.data.backups.names = result;
+            queue.decrease();
+        });
+
         Meta.jsonrpc.execute();
         queue.start();
     },
@@ -90,6 +87,7 @@ site.mode.admin.backup = {
             id = $form.select('input[name="id"]').val(),
             name = $form.select('input[name="name"]').val(),
             system_user = $form.select('select[name="system_user"]').val(),
+            mount = $form.select('select[name="mount"]').val(),
             schedule = $form.select('select[name="schedule"]').val(),
             keep = $form.select('input[name="keep"]').val(),
             params = {name: name};
@@ -102,6 +100,10 @@ site.mode.admin.backup = {
             params.system_user = s.toInt();
         }
 
+        if (s.set(mount).hasInt()) {
+            params.mount = s.toInt();
+        }
+
         if (s.set(schedule).hasInt()) {
             params.schedule = s.toInt();
         }
@@ -110,8 +112,9 @@ site.mode.admin.backup = {
             params.keep = s.toInt();
         }
 
-        var folders = $form.select('#folders-container').select('input:checked').val();
-        params.folders = folders;
+        var $folders = $form.select('#folders-container').select('input:checked');
+        var folders_val = $folders.val();
+        params.folders = $folders.len() == 1 ? [folders_val] : folders_val;
 
         return params;
     },
@@ -207,7 +210,6 @@ site.mode.admin.backup = {
             });
             backup.system_users = {users:data};
 
-
             data = [];
             Meta.each(site.data.schedules.names, function(v, i){
                 delete v.selected;
@@ -263,9 +265,31 @@ site.mode.admin.backup = {
             });
 
             var $system_user = Meta.dom.$().select('select[name="system_user"]');
-            site.mode.admin.backup.loadFolders(backup.system_user.id);
+            site.mode.admin.backup.loadFolders( backup.system_user.id );
+
+            queue.increase();
+            site.mode.admin.system_user.getMounts( backup.system_user.id, function(result){
+                site.data.system_users.mounts = result;
+                Meta.each(result, function(v, i){
+                    delete v.selected;
+                    if (backup.mount == v.id) {
+                        v.selected = 1;
+                    }
+                });
+
+                var $container = Meta.dom.$().select('#backup-form-mounts');
+                $container.inner(site.mustache.render('backup-form-mounts', site.data));
+                queue.decrease();
+            });
+
             $system_user.on('change', function() {
-                site.mode.admin.backup.loadFolders(Meta.dom.$(this).val());
+                var suser = Meta.dom.$(this).val();
+                site.mode.admin.backup.loadFolders( suser );
+                site.mode.admin.system_user.getMounts( suser, function(result){
+                    site.data.system_users.mounts = result;
+                    var $container = Meta.dom.$().select('#backup-form-mounts');
+                    $container.inner(site.mustache.render('backup-form-mounts', site.data));
+                });
                 Meta.jsonrpc.execute();
             });
 
@@ -323,8 +347,15 @@ site.mode.admin.backup = {
             var $system_user = Meta.dom.$().select('select[name="system_user"]');
             site.mode.admin.backup.loadFolders($system_user.val());
             Meta.jsonrpc.execute();
+
             $system_user.on('change', function() {
-                site.mode.admin.backup.loadFolders($system_user.val());
+                var suser = $system_user.val();
+                site.mode.admin.backup.loadFolders( suser );
+                site.mode.admin.system_user.getMounts( suser, function(result){
+                    site.data.system_users.mounts = result;
+                    var $container = Meta.dom.$().select('#backup-form-mounts');
+                    $container.inner(site.mustache.render('backup-form-mounts', site.data));
+                });
                 Meta.jsonrpc.execute();
             });
         },

@@ -1,0 +1,5 @@
+<select name="mount" class="browser-default">
+  {{#system_users.mounts}}
+  <option value="{{id}}" {{#selected}}selected="selected" {{/selected}}>{{name}}</option>
+  {{/system_users.mounts}}
+</select>

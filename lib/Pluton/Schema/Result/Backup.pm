@@ -71,6 +71,12 @@ __PACKAGE__->table("backups");
   is_foreign_key: 1
   is_nullable: 0
 
+=head2 mount
+
+  data_type: 'bigint'
+  is_foreign_key: 1
+  is_nullable: 0
+
 =head2 schedule
 
   data_type: 'bigint'
@@ -121,6 +127,8 @@ __PACKAGE__->add_columns(
   "creator",
   { data_type => "bigint", is_foreign_key => 1, is_nullable => 0 },
   "system_user",
+  { data_type => "bigint", is_foreign_key => 1, is_nullable => 0 },
+  "mount",
   { data_type => "bigint", is_foreign_key => 1, is_nullable => 0 },
   "schedule",
   { data_type => "bigint", is_foreign_key => 1, is_nullable => 0 },
@@ -177,6 +185,21 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
+=head2 mount
+
+Type: belongs_to
+
+Related object: L<Pluton::Schema::Result::Mount>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "mount",
+  "Pluton::Schema::Result::Mount",
+  { id => "mount" },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
+);
+
 =head2 schedule
 
 Type: belongs_to
@@ -208,8 +231,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-11-28 20:34:50
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:MPEGZQjrKbu17fHiWRqZOw
+# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-12-09 20:00:33
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:X7YpfowaENcVQKDR/GxAOQ
 
 sub TO_JSON {
     my ($self) = @_;

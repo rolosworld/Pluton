@@ -19,13 +19,20 @@
     <input type="text" name="keep" placeholder="(Min 0 Max 100)" value="{{keep}}"/>
   </div>
 
-<div>
+  <div>
     <label>System User:</label>
     <select name="system_user" class="browser-default">
       {{#system_users.users}}
       <option value="{{id}}" {{#selected}}selected="selected" {{/selected}}>{{username}}</option>
       {{/system_users.users}}
     </select>
+  </div>
+
+  <div>
+    <label>Destination:</label>
+    <div id="backup-form-mounts">
+      {{> backup-form-mounts}}
+    </div>
   </div>
 
   <div>

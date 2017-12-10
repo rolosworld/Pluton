@@ -61,3 +61,7 @@ footer.page-footer {
 #folders-container div {
     margin-left: 10px;
 }
+
+.btn {
+    margin: 4px;
+}

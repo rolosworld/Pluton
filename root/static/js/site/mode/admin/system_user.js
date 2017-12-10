@@ -15,7 +15,7 @@ site.mode.admin.system_user = {
         site.data.system_users.method_name = method;
 
         queue.increase();
-        this.getMounts(function(result){
+        this.getMounts(this.params.user, function(result){
             site.data.system_users.mounts = result;
             queue.decrease();
         });
@@ -28,10 +28,10 @@ site.mode.admin.system_user = {
         Meta.jsonrpc.execute();
         queue.start();
     },
-    getMounts: function(cb) {
+    getMounts: function(suser, cb) {
         Meta.jsonrpc.push({
             method:'admin.systemuser.list_mounts',
-            params:{},
+            params:{system_user: suser},
             callback:function(v){
                 var err = v.error;
                 if (err) {
@@ -88,7 +88,11 @@ site.mode.admin.system_user = {
             }
         });
     },
-    getParams: function($form) {
+    calculateMountType: function( storage_url ) {
+        var sparts = storage_url.split('/');
+        return sparts[0].split(':')[0];
+    },
+    getParams: function( $form ) {
         var id = $form.select('input[name="id"]').val();
         var name = $form.select('input[name="name"]').val();
         var type = $form.select('select[name="type"]').val();
@@ -98,6 +102,7 @@ site.mode.admin.system_user = {
         var fs_passphrase = $form.select('input[name="fs-passphrase"]').val();
 
         var params = {
+            system_user: Meta.string.$(site.data.params.user).toInt(),
             id:id,
             name:name,
             storage_url: storage_url,
@@ -255,6 +260,52 @@ site.mode.admin.system_user = {
             }
         });
     },
+    mount_authinfo2: function(params) {
+        Meta.jsonrpc.push({
+            method:'admin.systemuser.mountauthinfo2',
+            params:{
+                id:params.mid,
+            },
+            callback:function(v){
+                var err = v.error;
+                if (err) {
+                    site.log.errors(err);
+                    return false;
+                }
+
+                if (v.result) {
+                    var $log = Meta.dom.$().select('#system_user-mount_log');
+                    $log.text(v.result);
+                    return true;
+                }
+
+                return false;
+            }
+        }).execute();
+    },
+    mount_remount: function(params) {
+        Meta.jsonrpc.push({
+            method:'admin.systemuser.mountremount',
+            params:{
+                id:params.mid,
+            },
+            callback:function(v){
+                var err = v.error;
+                if (err) {
+                    site.log.errors(err);
+                    return false;
+                }
+
+                if (v.result) {
+                    var $log = Meta.dom.$().select('#system_user-mount_log');
+                    $log.text(v.result);
+                    return true;
+                }
+
+                return false;
+            }
+        }).execute();
+    },
     methods: {
         configuration: function(params) {
             var $container = Meta.dom.$().select('#system_user-container');
@@ -262,7 +313,7 @@ site.mode.admin.system_user = {
         },
         'mount-add': function(params) {
             var $container = Meta.dom.$().select('#system_user-container');
-            $container.inner(site.mustache.render('system_user-mount-form', {type:{generic:1}}));
+            $container.inner(site.mustache.render('system_user-mount-form', {type:{generic:1}, params: params}));
 
             var $form = $container.select('#system_user-mount-form');
             var $type = $form.select('select[name="type"]');
@@ -306,7 +357,10 @@ site.mode.admin.system_user = {
         'mount-rm': function(params) {
             Meta.jsonrpc.push({
                 method:'admin.systemuser.rmmount',
-                params:{id:params.mid},
+                params:{
+                    id:params.mid,
+                    system_user:params.user
+                },
                 callback:function(v){
                     var err = v.error;
                     if (err) {
@@ -333,8 +387,7 @@ site.mode.admin.system_user = {
                 }
             }
 
-            var sparts = mount.storage_url.split('/');
-            var type = sparts[0].split(':')[0];
+            var type = site.mode.admin.system_user.calculateMountType( mount.storage_url );
             mount.type = {};
             mount.type[type] = 1;
 
@@ -358,6 +411,16 @@ site.mode.admin.system_user = {
                     site.mode.admin.system_user.loadFolders();
                     Meta.jsonrpc.execute();
                 }
+            });
+
+            $form.select('#system_user-mount-generate_authinfo2').on('click', function() {
+                site.mode.admin.system_user.mount_authinfo2( params );
+                return false;
+            });
+
+            $form.select('#system_user-mount-generate_remount').on('click', function() {
+                site.mode.admin.system_user.mount_remount( params );
+                return false;
             });
 
             $form.on('submit', function() {
@@ -474,6 +537,29 @@ site.mode.admin.system_user = {
                 }).execute();
                 return false;
             });
+        },
+        rm: function(params) {
+            Meta.jsonrpc.push({
+                method:'admin.systemuser.rm',
+                params:{
+                    id:Meta.string.$(params.user).toInt()
+                },
+                callback:function(v){
+                    var err = v.error;
+                    if (err) {
+                        site.log.errors(err);
+                        return false;
+                    }
+
+                    if (v.result) {
+                        site.data.system_users.users = v.result;
+                        location.hash = '#mode=system_user';
+                        return true;
+                    }
+
+                    return false;
+                }
+            }).execute();
         },
         list: function() {
             site.mode.admin.system_user.getSystemUsers(function(result){

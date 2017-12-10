@@ -7,10 +7,11 @@ use Main::JSON::Validator;
 extends 'Pluton::SystemUser::Command';
 
 our $__backup_schema = {
-    required   => [qw(system_user schedule name folders keep)],
+    required   => [qw(system_user mount schedule name folders keep)],
     properties => {
         id => { type => 'integer', minimum => 1, maximum => 10000 },
         system_user => { type => 'integer', minimum => 1, maximum => 10000 },
+        mount => { type => 'integer', minimum => 1, maximum => 10000 },
         schedule => { type => 'integer', minimum => 1, maximum => 10000 },
         keep => { type => 'integer', minimum => 0, maximum => 100 },
         name => { type => 'string', minLength => 1, maxLength => 80 },
@@ -50,6 +51,22 @@ sub edit {
         $self->jsonrpc_error(
             [   {   path    => '/system_user',
                     message => 'System User does not exist',
+                }
+            ]);
+
+        return;
+    }
+
+    my $mount = $c->model('DB::Mount')->search({
+        id => $$params{mount},
+        system_user => $$params{system_user},
+        creator => $c->user->id,
+    })->next;
+
+    if ( !$mount ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/mount',
+                    message => 'Mount does not exist',
                 }
             ]);
 
@@ -108,13 +125,17 @@ sub edit {
         creator => $c->user->id,
         name => $$params{name},
         system_user => $$params{system_user},
+        mount => $$params{mount},
         schedule => $$params{schedule},
         keep => $$params{keep},
         folders => join("\n", @{$$params{folders}}),
     };
 
     $exist->update($values);
-    $self->crontab({backup => $exist});
+    $self->crontab({
+        backup => $exist,
+        mount => $mount,
+    });
 
     return $self->list;
 }
@@ -174,10 +195,27 @@ sub add {
         return;
     }
 
+    $exist = $c->model('DB::Mount')->search({
+        id => $$params{mount},
+        system_user => $$params{system_user},
+        creator => $c->user->id,
+    })->next;
+
+    if ( !$exist ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/mount',
+                    message => 'Mount does not exist',
+                }
+            ]);
+
+        return;
+    }
+
     my $values = {
         creator => $c->user->id,
         name => $$params{name},
         system_user => $$params{system_user},
+        mount => $$params{mount},
         schedule => $$params{schedule},
         keep => $$params{keep},
         folders => join("\n", @{$$params{folders}}),
@@ -203,12 +241,15 @@ sub crontab {
     my ($self, $params) = @_;
     my $c = $self->c;
     my $backup = $$params{backup};
+    my $mount = $$params{mount};
     my $user = $backup->get_column('system_user');
     my $keep = $backup->keep;
     my $bid = $backup->id;
 
+    my $backup_dest = $self->getObject('Mount', c => $c, mount => $mount)->path;
+
     # Create backup destination
-    my $output .= $self->run({user => $user, command => "mkdir -p ~/.pluton/backup/current/$bid ~/.pluton/backup/previous/$bid"});
+    my $output .= $self->run({user => $user, command => "mkdir -p $backup_dest/current/$bid $backup_dest/previous/$bid"});
 
     # Create backup script
     $output .= $self->run({user => $user, command => "echo '#!/bin/bash' >  ~/.pluton/scripts/$bid.sh"});
@@ -216,14 +257,14 @@ sub crontab {
 
     # Manage previous backups
     if ($keep) {
-        $output .= $self->run({user => $user, command => "echo 's3qlcp ~/.pluton/backup/current/$bid ~/.pluton/backup/previous/$bid/\${STAMP} &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
-        $output .= $self->run({user => $user, command => "echo 's3qllock ~/.pluton/backup/previous/$bid/\${STAMP} &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
+        $output .= $self->run({user => $user, command => "echo 's3qlcp $backup_dest/current/$bid $backup_dest/previous/$bid/\${STAMP} &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
+        $output .= $self->run({user => $user, command => "echo 's3qllock $backup_dest/previous/$bid/\${STAMP} &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
         $output .= $self->run({user => $user, command => "echo 'KEEP=$keep' >>  ~/.pluton/scripts/$bid.sh"});
-        $output .= $self->run({user => $user, command => "echo 'CURR=`find ~/.pluton/backup/previous/$bid -maxdepth 1 -type d | wc -l`' >>  ~/.pluton/scripts/$bid.sh"});
+        $output .= $self->run({user => $user, command => "echo 'CURR=`find $backup_dest/previous/$bid -maxdepth 1 -type d | wc -l`' >>  ~/.pluton/scripts/$bid.sh"});
         $output .= $self->run({user => $user, command => "echo 'DELTA=\$((CURR-KEEP))' >>  ~/.pluton/scripts/$bid.sh"});
         $output .= $self->run({user => $user, command => "echo 'if [ \${DELTA} -gt \"1\" ]; then' >>  ~/.pluton/scripts/$bid.sh"});
         $output .= $self->run({user => $user, command => "echo 'DELTA2=\$((DELTA-1))' >>  ~/.pluton/scripts/$bid.sh"});
-        $output .= $self->run({user => $user, command => "echo 'find ~/.pluton/backup/previous/$bid -maxdepth 1 -type d | sort | head -\${DELTA} | tail -\${DELTA2} | xargs -n1 s3qlrm &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
+        $output .= $self->run({user => $user, command => "echo 'find $backup_dest/previous/$bid -maxdepth 1 -type d | sort | head -\${DELTA} | tail -\${DELTA2} | xargs -n1 s3qlrm &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
         $output .= $self->run({user => $user, command => "echo 'fi' >>  ~/.pluton/scripts/$bid.sh"});
     }
 
@@ -234,7 +275,7 @@ sub crontab {
         my @parts = split('/', $folder);
         my $fname = join('_', @parts);
 
-        $output .= $self->run({user => $user, command => "echo 'rsync -avh ~/\"$folder/\" ~/.pluton/backup/current/$bid/\"$fname\" --delete &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
+        $output .= $self->run({user => $user, command => "echo 'rsync -avh ~/\"$folder/\" $backup_dest/current/$bid/\"$fname\" --delete &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
         $output .= $self->run({user => $user, command => "chmod 700 ~/.pluton/scripts/$bid.sh"});
     }
 
@@ -352,7 +393,10 @@ sub restore {
     if ($source) {
         $src = "previous/$bid/$source";
     }
-    my $output = $self->run({user => $backup->system_user->id, command => "rsync -avh ~/.pluton/backup/$src ~/'$dest'  &>> ~/.pluton/logs/$bid.log"});
+
+    my $backup_dest = $self->getObject('Mount', c => $c, mount => $backup->mount)->path;
+
+    my $output = $self->run({user => $backup->system_user->id, command => "rsync -avh $backup_dest/$src ~/'$dest'  &>> ~/.pluton/logs/$bid.log"});
     my @_output = split("\n", $output);
     return \@_output;
 }
@@ -396,7 +440,8 @@ sub sources {
     }
 
     my $bid = $backup->id;
-    my $path = ".pluton/backup/previous/$bid";
+    my $backup_dest = $self->getObject('Mount', c => $c, mount => $backup->mount)->local_path;
+    my $path = "$backup_dest/previous/$bid";
     my $output = $self->run({user => $backup->system_user->id, command => "find '$path' -maxdepth 1 -type d -regex '\.[/0-9a-zA-Z_ -]+' | cut -f 5 -d '/'"});
     my @_output = split("\n", $output);
     shift @_output;

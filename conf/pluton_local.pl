@@ -58,6 +58,7 @@
                /static/js/site/mounts/b2.js
                /static/js/site/mounts/rackspace.js
                /static/js/site/mounts/local.js
+               /static/js/site/mounts/generic.js
                /static/js/site/mode/admin/home.js
                /static/js/site/mode/admin/system_user.js
                /static/js/site/mode/admin/schedule.js
@@ -103,6 +104,7 @@
             'schedule-form' => '/static/mustache/schedule-form.mustache',
             backup => '/static/mustache/backup.mustache',
             'backup-form' => '/static/mustache/backup-form.mustache',
+            'backup-form-mounts' => '/static/mustache/backup-form-mounts.mustache',
             restore => '/static/mustache/restore.mustache',
             'restore-form' => '/static/mustache/restore-form.mustache',
             folders => '/static/mustache/folders.mustache',

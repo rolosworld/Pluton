@@ -65,6 +65,12 @@ __PACKAGE__->table("mounts");
   is_foreign_key: 1
   is_nullable: 0
 
+=head2 system_user
+
+  data_type: 'bigint'
+  is_foreign_key: 1
+  is_nullable: 0
+
 =head2 name
 
   data_type: 'varchar'
@@ -123,6 +129,8 @@ __PACKAGE__->add_columns(
   },
   "creator",
   { data_type => "bigint", is_foreign_key => 1, is_nullable => 0 },
+  "system_user",
+  { data_type => "bigint", is_foreign_key => 1, is_nullable => 0 },
   "name",
   { data_type => "varchar", is_nullable => 0, size => 32 },
   "storage_url",
@@ -175,6 +183,21 @@ __PACKAGE__->add_unique_constraint("mounts_creator_name_key", ["creator", "name"
 
 =head1 RELATIONS
 
+=head2 backups
+
+Type: has_many
+
+Related object: L<Pluton::Schema::Result::Backup>
+
+=cut
+
+__PACKAGE__->has_many(
+  "backups",
+  "Pluton::Schema::Result::Backup",
+  { "foreign.mount" => "self.id" },
+  { cascade_copy => 0, cascade_delete => 0 },
+);
+
 =head2 creator
 
 Type: belongs_to
@@ -190,9 +213,24 @@ __PACKAGE__->belongs_to(
   { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
 );
 
+=head2 system_user
 
-# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-12-05 20:51:28
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:1W8p6dzZ3zgMbUvge4uv1w
+Type: belongs_to
+
+Related object: L<Pluton::Schema::Result::SystemUser>
+
+=cut
+
+__PACKAGE__->belongs_to(
+  "system_user",
+  "Pluton::Schema::Result::SystemUser",
+  { id => "system_user" },
+  { is_deferrable => 0, on_delete => "CASCADE", on_update => "NO ACTION" },
+);
+
+
+# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-12-09 20:00:33
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:TbZLaVCL+OYSNa/MNLUVgA
 
 sub TO_JSON {
     my ($self) = @_;

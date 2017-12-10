@@ -54,29 +54,13 @@ CREATE TRIGGER update_schedules_updated BEFORE UPDATE
     ON schedules FOR EACH ROW EXECUTE PROCEDURE
     update_updated_column();
 
-DROP TABLE IF EXISTS backups CASCADE;
-CREATE TABLE backups (
-    id bigserial NOT NULL PRIMARY KEY,
-    created timestamp NOT NULL DEFAULT current_timestamp,
-    updated timestamp NOT NULL DEFAULT current_timestamp,
-    "creator" bigint NOT NULL REFERENCES users ON DELETE CASCADE,
-    system_user bigint NOT NULL REFERENCES system_users ON DELETE CASCADE,
-    schedule bigint NOT NULL REFERENCES schedules ON DELETE CASCADE,
-    "name" character varying(255) NOT NULL,
-    folders text NOT NULL,
-    keep smallint NOT NULL DEFAULT 0,
-    UNIQUE( "creator","name" )
-);
-CREATE TRIGGER update_backups_updated BEFORE UPDATE
-    ON backups FOR EACH ROW EXECUTE PROCEDURE
-    update_updated_column();
-
 DROP TABLE IF EXISTS mounts CASCADE;
 CREATE TABLE mounts (
     id bigserial NOT NULL PRIMARY KEY,
     created timestamp NOT NULL DEFAULT current_timestamp,
     updated timestamp NOT NULL DEFAULT current_timestamp,
     "creator" bigint NOT NULL REFERENCES users ON DELETE CASCADE,
+    "system_user" bigint NOT NULL REFERENCES system_users ON DELETE CASCADE,
     "name" character varying(32) NOT NULL,
     "storage_url" character varying(255) NOT NULL,
     "backend_login" character varying(255) DEFAULT NULL,
@@ -86,4 +70,22 @@ CREATE TABLE mounts (
 );
 CREATE TRIGGER update_mounts_updated BEFORE UPDATE
     ON mounts FOR EACH ROW EXECUTE PROCEDURE
+    update_updated_column();
+
+DROP TABLE IF EXISTS backups CASCADE;
+CREATE TABLE backups (
+    id bigserial NOT NULL PRIMARY KEY,
+    created timestamp NOT NULL DEFAULT current_timestamp,
+    updated timestamp NOT NULL DEFAULT current_timestamp,
+    "creator" bigint NOT NULL REFERENCES users ON DELETE CASCADE,
+    system_user bigint NOT NULL REFERENCES system_users ON DELETE CASCADE,
+    mount bigint NOT NULL REFERENCES mounts ON DELETE CASCADE,
+    schedule bigint NOT NULL REFERENCES schedules ON DELETE CASCADE,
+    "name" character varying(255) NOT NULL,
+    folders text NOT NULL,
+    keep smallint NOT NULL DEFAULT 0,
+    UNIQUE( "creator","name" )
+);
+CREATE TRIGGER update_backups_updated BEFORE UPDATE
+    ON backups FOR EACH ROW EXECUTE PROCEDURE
     update_updated_column();

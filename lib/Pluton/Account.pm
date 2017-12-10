@@ -212,7 +212,7 @@ sub login {
         my $run = {
             username => $$params{username},
             password => $$params{password},
-            command  => 'mkdir -p ~/.s3ql ~/.pluton/backup ~/.pluton/scripts ~/.pluton/logs && touch ~/.s3ql/authinfo2 && chmod 600 ~/.s3ql/authinfo2',
+            command  => 'mkdir -p ~/.s3ql ~/.pluton/authinfo ~/.pluton/backup ~/.pluton/scripts ~/.pluton/logs && touch ~/.s3ql/authinfo2 && chmod 600 ~/.s3ql/authinfo2',
         };
         my $output = $su->raw($run);
         $c->model('DB::SystemUser')->create({
