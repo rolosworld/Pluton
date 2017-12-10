@@ -86,7 +86,6 @@
             system_user => '/static/mustache/system_user.mustache',
             'system_user-add-form' => '/static/mustache/system_user-add-form.mustache',
             'system_user-configuration-list' => '/static/mustache/system_user-configuration-list.mustache',
-            'system_user-configuration-raw' => '/static/mustache/system_user-configuration-raw.mustache',
             'system_user-mount-form' => '/static/mustache/system_user-mount-form.mustache',
 
             'system_user-mount-generic-fields' => '/static/mustache/system_user-mount-generic-fields.mustache',
