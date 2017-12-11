@@ -50,6 +50,8 @@
                /static/js/mustache.js
                /static/js/site/_.js
                /static/js/site/log.js
+               /static/js/site/obj/mode.js
+               /static/js/site/obj/method.js
                /static/js/site/mounts/swift.js
                /static/js/site/mounts/swiftks.js
                /static/js/site/mounts/gs.js
@@ -60,15 +62,51 @@
                /static/js/site/mounts/local.js
                /static/js/site/mounts/generic.js
                /static/js/site/mode/admin/home.js
+               /static/js/site/mode/admin/home/main.js
                /static/js/site/mode/admin/system_user.js
+               /static/js/site/mode/admin/system_user/main.js
+               /static/js/site/mode/admin/system_user/configuration.js
+               /static/js/site/mode/admin/system_user/mount-add.js
+               /static/js/site/mode/admin/system_user/mount-rm.js
+               /static/js/site/mode/admin/system_user/mount-edit.js
+               /static/js/site/mode/admin/system_user/add.js
+               /static/js/site/mode/admin/system_user/rm.js
+               /static/js/site/mode/admin/system_user/list.js
                /static/js/site/mode/admin/schedule.js
+               /static/js/site/mode/admin/schedule/main.js
+               /static/js/site/mode/admin/schedule/edit.js
+               /static/js/site/mode/admin/schedule/add.js
+               /static/js/site/mode/admin/schedule/list.js
                /static/js/site/mode/admin/backup.js
+               /static/js/site/mode/admin/backup/main.js
+               /static/js/site/mode/admin/backup/edit.js
+               /static/js/site/mode/admin/backup/add.js
+               /static/js/site/mode/admin/backup/list.js
                /static/js/site/mode/admin/restore.js
+               /static/js/site/mode/admin/restore/main.js
+               /static/js/site/mode/admin/restore/process.js
                /static/js/site/mode/user/home.js
+               /static/js/site/mode/user/home/main.js
                /static/js/site/mode/user/system_user.js
+               /static/js/site/mode/user/system_user/main.js
+               /static/js/site/mode/user/system_user/configuration.js
+               /static/js/site/mode/user/system_user/mount-add.js
+               /static/js/site/mode/user/system_user/mount-rm.js
+               /static/js/site/mode/user/system_user/mount-edit.js
+               /static/js/site/mode/user/system_user/list.js
                /static/js/site/mode/user/schedule.js
+               /static/js/site/mode/user/schedule/main.js
+               /static/js/site/mode/user/schedule/edit.js
+               /static/js/site/mode/user/schedule/add.js
+               /static/js/site/mode/user/schedule/list.js
                /static/js/site/mode/user/backup.js
+               /static/js/site/mode/user/backup/main.js
+               /static/js/site/mode/user/backup/edit.js
+               /static/js/site/mode/user/backup/add.js
+               /static/js/site/mode/user/backup/list.js
                /static/js/site/mode/user/restore.js
+               /static/js/site/mode/user/restore/main.js
+               /static/js/site/mode/user/restore/process.js
                /static/js/site/init.js
                /static/js/site/mustache.js
                /static/js/site/login.js

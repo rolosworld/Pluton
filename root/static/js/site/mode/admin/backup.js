@@ -1,6 +1,5 @@
-site.mode.admin.backup = {
-    params:{},
-    getData: function(cb) {
+site.mode.admin.backup = Meta( site.obj.mode ).extend({
+    getSiteData: function(cb) {
         var queue = Meta.queue.$(function() {
             cb(site.data);
         });
@@ -23,7 +22,7 @@ site.mode.admin.backup = {
             site.data.backups = {};
         }
 
-        var method = this.params.method;
+        var method = site.data.params.method;
         site.data.backups.method = {};
         if (method) {
             site.data.backups.method[method] = 1;
@@ -59,29 +58,7 @@ site.mode.admin.backup = {
             }
         });
     },
-    init: function(params) {
-        var me = site.mode.admin.backup;
-        site.emptyDoms();
-        me.params = params;
-
-        site.mode.admin.home.initLeft();
-        site.log.init();
-
-        me.getData(function() {
-            me.initMiddle();
-
-            var methods = me.methods;
-            if (methods[params.method]) {
-                methods[params.method](params);
-            }
-
-            site.showDoms();
-        });
-    },
-    initMiddle: function() {
-        site.doms.middle.append(site.mustache.render('backup', site.data));
-    },
-    getParams: function($form) {
+    getDomData: function($form) {
         // Prepare data for the request
         var s = Meta.string.$(),
             id = $form.select('input[name="id"]').val(),
@@ -188,183 +165,5 @@ site.mode.admin.backup = {
                 cb();
             }
         });
-    },
-    methods: {
-        edit: function(params) {
-            var backups = site.data.backups.names, backup;
-            for (var i = 0; i < backups.length; i++) {
-                if (backups[i].id == params.id) {
-                    backup = backups[i];
-                    break;
-                }
-            }
-
-            var data = [];
-            Meta.each(site.data.system_users.users, function(v, i){
-                delete v.selected;
-                if (backup.system_user.id == v.id) {
-                    v.selected = 1;
-                }
-
-                data.push(v);
-            });
-            backup.system_users = {users:data};
-
-            data = [];
-            Meta.each(site.data.schedules.names, function(v, i){
-                delete v.selected;
-                if (backup.schedule.id == v.id) {
-                    v.selected = 1;
-                }
-
-                data.push(v);
-            });
-            backup.schedules = {names:data};
-
-            var $container = Meta.dom.$().select('#backup-form-container');
-            $container.append(site.mustache.render('backup-form', backup));
-
-            var $form = Meta.dom.$().select('#backup-form');
-            $form.on('submit', function(){
-                var params = site.mode.admin.backup.getParams($form);
-                var id = params.id,
-                    name = params.name;
-                if (!id || !name) {
-                    return false;
-                }
-
-                Meta.jsonrpc.push({
-                    method:'admin.backup.edit',
-                    params:params,
-                    callback:function(v){
-                        var err = v.error;
-                        if (err) {
-                            site.log.errors(err);
-                            return false;
-                        }
-
-                        if (v.result) {
-                            site.data.backups.names = v.result;
-                            location.hash = '#mode=backup';
-                            return true;
-                        }
-
-                        return false;
-                    }
-                }).execute();
-                return false;
-            });
-
-            // Folders loaders
-            var folders = backup.folders.split("\n");
-            var pending = {};
-            var queue = Meta.queue.$(function(){
-                Meta.each(folders, function(folder) {
-                    $container.select('#' + folder.replace(/[\ \.\/]/g,'_')).get(0).checked = true;
-                });
-            });
-
-            var $system_user = Meta.dom.$().select('select[name="system_user"]');
-            site.mode.admin.backup.loadFolders( backup.system_user.id );
-
-            queue.increase();
-            site.mode.admin.system_user.getMounts( backup.system_user.id, function(result){
-                site.data.system_users.mounts = result;
-                Meta.each(result, function(v, i){
-                    delete v.selected;
-                    if (backup.mount == v.id) {
-                        v.selected = 1;
-                    }
-                });
-
-                var $container = Meta.dom.$().select('#backup-form-mounts');
-                $container.inner(site.mustache.render('backup-form-mounts', site.data));
-                queue.decrease();
-            });
-
-            $system_user.on('change', function() {
-                var suser = Meta.dom.$(this).val();
-                site.mode.admin.backup.loadFolders( suser );
-                site.mode.admin.system_user.getMounts( suser, function(result){
-                    site.data.system_users.mounts = result;
-                    var $container = Meta.dom.$().select('#backup-form-mounts');
-                    $container.inner(site.mustache.render('backup-form-mounts', site.data));
-                });
-                Meta.jsonrpc.execute();
-            });
-
-            Meta.each(folders, function(folder) {
-                var parts = folder.split('/');
-                var j = 0;
-                var path = '';
-                for (; j < parts.length - 1; j++) {
-                    path += parts[j];
-                    if (!pending[path]) {
-                        queue.increase();
-                        site.mode.admin.backup.loadFolders(backup.system_user.id, path, function() {
-                            queue.decrease();
-                        });
-                        pending[path] = 1;
-                    }
-                    path += '/';
-                }
-            });
-            Meta.jsonrpc.execute();
-            queue.start();
-        },
-        add: function() {
-            var $form = Meta.dom.$().select('#backup-form');
-            $form.on('submit', function(){
-                var params = site.mode.admin.backup.getParams($form);
-                var name = params.name;
-                if (!name) {
-                    return false;
-                }
-
-                Meta.jsonrpc.push({
-                    method:'admin.backup.add',
-                    params:params,
-                    callback:function(v){
-                        var err = v.error;
-                        if (err) {
-                            site.log.errors(err);
-                            return false;
-                        }
-
-                        if (v.result) {
-                            site.data.backups.names = v.result;
-                            location.hash = '#mode=backup';
-                            return true;
-                        }
-
-                        return false;
-                    }
-                }).execute();
-                return false;
-            });
-
-            // Folders loaders
-            var $system_user = Meta.dom.$().select('select[name="system_user"]');
-            site.mode.admin.backup.loadFolders($system_user.val());
-            Meta.jsonrpc.execute();
-
-            $system_user.on('change', function() {
-                var suser = $system_user.val();
-                site.mode.admin.backup.loadFolders( suser );
-                site.mode.admin.system_user.getMounts( suser, function(result){
-                    site.data.system_users.mounts = result;
-                    var $container = Meta.dom.$().select('#backup-form-mounts');
-                    $container.inner(site.mustache.render('backup-form-mounts', site.data));
-                });
-                Meta.jsonrpc.execute();
-            });
-        },
-        list: function() {
-            site.mode.admin.backup.getBackups(function(result){
-                site.data.backups.names = v.result;
-                site.switchMode('backup');
-            });
-            Meta.jsonrpc.execute();
-        }
     }
-};
+});

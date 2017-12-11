@@ -67,15 +67,6 @@ sub mountremount : Remote {
     return $self->getObject( 'SystemUser', c => $c )->mount_remount($params);
 }
 
-=head2 list
-
-=cut
-
-sub list : Remote {
-    my ( $self, $c, $params ) = @_;
-    return $self->getObject( 'SystemUser', c => $c )->list;
-}
-
 =head2 list_mounts
 
 =cut
@@ -83,6 +74,15 @@ sub list : Remote {
 sub list_mounts : Remote {
     my ( $self, $c, $params ) = @_;
     return $self->getObject( 'SystemUser', c => $c )->list_mounts($params);
+}
+
+=head2 list
+
+=cut
+
+sub list : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->list;
 }
 
 =head2 folders

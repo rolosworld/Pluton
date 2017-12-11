@@ -1,19 +1,76 @@
-site.mode.user.system_user = {
-    params:{},
-    getData: function(cb) {
-        site.data.system_users = {};
+site.mode.user.system_user = Meta( site.obj.mode ).extend({
+    getDefaultMode: function() {
+        return 'configuration';
+    },
+    getSiteData: function(cb) {
+        site.data.params.user = site.data.user.system_user.id;
 
-        site.data.system_users.method = {s3ql:1};
-        site.data.system_users.method_name = 's3ql';
-
-        this.getSystemUsers(function(result){
-            site.data.system_users.users = result;
+        var queue = Meta.queue.$(function() {
             cb(site.data);
         });
+
+        site.data.system_users = {};
+
+        var method = site.data.params.method;
+        site.data.system_users.method = {};
+        if (method) {
+            site.data.system_users.method[method] = 1;
+        }
+        site.data.system_users.method_name = method;
+
+        queue.increase();
+        this.getMounts(site.data.params.user, function(result){
+            site.data.system_users.mounts = result;
+            queue.decrease();
+        });
+
+        queue.increase();
+        this.getSystemUsers(function(result){
+            site.data.system_users.users = result;
+            queue.decrease();
+        });
         Meta.jsonrpc.execute();
+        queue.start();
+    },
+    getMounts: function(suser, cb) {
+        Meta.jsonrpc.push({
+            method:'user.systemuser.list_mounts',
+            params:{system_user: suser},
+            callback:function(v){
+                var err = v.error;
+                if (err) {
+                    site.log.errors(err);
+                    return false;
+                }
+
+                if (v.result) {
+                    cb(v.result);
+                    return true;
+                }
+
+                return false;
+            }
+        });
     },
     getSystemUsers: function(cb) {
-        cb([site.data.user.system_user]);
+        Meta.jsonrpc.push({
+            method:'user.systemuser.list',
+            params:{},
+            callback:function(v){
+                var err = v.error;
+                if (err) {
+                    site.log.errors(err);
+                    return false;
+                }
+
+                if (v.result) {
+                    cb(v.result);
+                    return true;
+                }
+
+                return false;
+            }
+        });
     },
     getFolders: function(params, cb) {
         Meta.jsonrpc.push({
@@ -35,42 +92,91 @@ site.mode.user.system_user = {
             }
         });
     },
-    init: function(params) {
-        var me = site.mode.user.system_user;
-        site.emptyDoms();
-        me.params = params;
-
-        site.mode.user.home.initLeft();
-        site.log.init();
-
-        me.getData(function() {
-            me.initMiddle();
-            params.user = site.data.user.system_user.id;
-            me.methods.s3ql(params);
-            site.showDoms();
-        });
+    calculateMountType: function( storage_url ) {
+        var sparts = storage_url.split('/');
+        return sparts[0].split(':')[0];
     },
-    initMiddle: function() {
-        site.doms.middle.append(site.mustache.render('system_user', site.data));
-    },
-    s3ql: function(authinfo2_val) {
-        var su = site.mode.user.system_user;
-        var $form = Meta.dom.$().select('#system_user-s3ql-form');
-        var $authinfo2 = $form.select('textarea[name="authinfo2"]');
-        var $id = $form.select('input[name="id"]');
-        var $submit = $form.select('input[type="submit"]');
+    getDomData: function( $form ) {
+        var id = $form.select('input[name="id"]').val();
+        var name = $form.select('input[name="name"]').val();
+        var type = $form.select('select[name="type"]').val();
+        var storage_url = $form.select('input[name="storage-url"]').val();
+        var backend_login = $form.select('input[name="backend-login"]').val();
+        var backend_password = $form.select('input[name="backend-password"]').val();
+        var fs_passphrase = $form.select('input[name="fs-passphrase"]').val();
 
-        var params = {user: Meta.string.$($id.val()).toInt()};
-        if (authinfo2_val) {
-            params.authinfo2 = authinfo2_val;
+        var params = {
+            system_user: Meta.string.$(site.data.params.user).toInt(),
+            id:id,
+            name:name,
+            storage_url: storage_url,
+            backend_login: backend_login,
+            backend_password: backend_password,
+            fs_passphrase: fs_passphrase
+        };
+        if (!backend_password) {
+            delete params.backend_password;
+        }
+        if (!backend_login) {
+            delete params.backend_login;
         }
 
-        $submit.attr('disabled','disabled');
+        site.mounts[type].domToParams( $form, params );
+
+        return params;
+    },
+    loadFolders: function(path, cb) {
+        var me = site.mode.user.system_user;
+        var user = Meta.string.$(site.data.params.user).toInt();
+
+        var params = {
+            user:user
+        };
+        if (path) {
+            params.path = path;
+        }
+        site.mode.user.system_user.getFolders(params, function(folders){
+            Meta.each(folders, function(folder, i) {
+                var name = folder.split('/');
+                name = name[name.length - 1];
+                var path = folder.substring(2);
+                folders[i] = {
+                    name: name,
+                    path: path,
+                    id: path.replace(/[\ \.\/]/g,'_')
+                };
+            });
+
+            var pid = path ? 'container-' + path.replace(/[\ \.\/]/g,'_') : 'folders-container';
+            var $container = Meta.dom.$().select('#' + pid);
+            if (folders.length) {
+                $container.inner(site.mustache.render('folders', {
+                    folders:folders,
+                    type:'radio'
+                }));
+                $container.select('a').on('click', function() {
+                    var $a = Meta.dom.$(this);
+                    site.mode.user.system_user.loadFolders($a.data('path'));
+                    Meta.jsonrpc.execute();
+                    return false;
+                });
+            }
+            else {
+                $container.inner('<div>Empty</div>');
+            }
+
+            if (cb) {
+                cb();
+            }
+        });
+    },
+    mountAuthinfo2: function(params) {
         Meta.jsonrpc.push({
-            method:'user.systemuser.s3ql',
-            params:params,
+            method:'user.systemuser.mountauthinfo2',
+            params:{
+                id:params.mid,
+            },
             callback:function(v){
-                $submit.attr('disabled',null);
                 var err = v.error;
                 if (err) {
                     site.log.errors(err);
@@ -78,7 +184,8 @@ site.mode.user.system_user = {
                 }
 
                 if (v.result) {
-                    $authinfo2.val(v.result);
+                    var $log = Meta.dom.$().select('#system_user-mount_log');
+                    $log.text(v.result);
                     return true;
                 }
 
@@ -86,68 +193,27 @@ site.mode.user.system_user = {
             }
         }).execute();
     },
-    s3ql_remount: function(params) {
-        var su = site.mode.user.system_user;
-
-        var $log = Meta.dom.$().select('#system_user-s3ql_log');
-        var $a = Meta.dom.$().select('#system_user-s3ql_remount');
-        $a.data('user', params.user);
-
-        var pending = 0;
-        $a.on('click', function(){
-            if (pending) {
-                return false;
-            }
-
-            pending = 1;
-            $log.text('');
-            Meta.jsonrpc.push({
-                method:'user.systemuser.s3ql_remount',
-                params:{
-                    user:Meta.string.$($a.data('user')).toInt()
-                },
-                callback:function(v){
-                    pending = 0;
-                    var err = v.error;
-                    if (err) {
-                        site.log.errors(err);
-                        return false;
-                    }
-
-                    if (v.result) {
-                        $log.text(v.result);
-                        return true;
-                    }
-
+    mountRemount: function(params) {
+        Meta.jsonrpc.push({
+            method:'user.systemuser.mountremount',
+            params:{
+                id:params.mid,
+            },
+            callback:function(v){
+                var err = v.error;
+                if (err) {
+                    site.log.errors(err);
                     return false;
                 }
-            }).execute();
-            return false;
-        });
-    },
-    methods: {
-        s3ql: function(params) {
-            var su = site.mode.user.system_user;
 
-            var $form = Meta.dom.$().select('#system_user-s3ql-form');
-            var $authinfo2 = $form.select('textarea[name="authinfo2"]');
-            var $id = $form.select('input[name="id"]');
-            $id.val(params.user);
+                if (v.result) {
+                    var $log = Meta.dom.$().select('#system_user-mount_log');
+                    $log.text(v.result);
+                    return true;
+                }
 
-            su.s3ql();
-            $form.on('submit', function(){
-                su.s3ql( $authinfo2.val() );
                 return false;
-            });
-
-            su.s3ql_remount(params);
-        },
-        list: function() {
-            site.mode.user.system_user.getSystemUsers(function(result){
-                site.data.system_users.users = v.result;
-                site.switchMode('system_user');
-            });
-            Meta.jsonrpc.execute();
-        }
+            }
+        }).execute();
     }
-};
+});

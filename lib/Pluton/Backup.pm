@@ -241,7 +241,7 @@ sub crontab {
     my ($self, $params) = @_;
     my $c = $self->c;
     my $backup = $$params{backup};
-    my $mount = $$params{mount};
+    my $mount = $backup->mount;
     my $user = $backup->get_column('system_user');
     my $keep = $backup->keep;
     my $bid = $backup->id;

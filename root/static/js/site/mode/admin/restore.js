@@ -1,6 +1,5 @@
-site.mode.admin.restore = {
-    params:{},
-    getData: function(cb) {
+site.mode.admin.restore = Meta( site.obj.mode ).extend({
+    getSiteData: function(cb) {
         var me = site.mode.admin.restore;
         var queue = Meta.queue.$(function() {
             cb(site.data);
@@ -15,9 +14,9 @@ site.mode.admin.restore = {
             queue.decrease();
         });
 
-        if (me.params.id) {
+        if (site.data.params.id) {
             queue.increase();
-            site.mode.admin.backup.getSources(Meta.string.$(me.params.id).toInt(), function(result){
+            site.mode.admin.backup.getSources(Meta.string.$(site.data.params.id).toInt(), function(result){
                 if (!site.data.backups) {
                     site.data.backups = {};
                 }
@@ -30,7 +29,7 @@ site.mode.admin.restore = {
             site.data.restores = {};
         }
 
-        var method = this.params.method;
+        var method = site.data.params.method;
         site.data.restores.method = {};
         if (method) {
             site.data.restores.method[method] = 1;
@@ -50,36 +49,14 @@ site.mode.admin.restore = {
         });
         return backup;
     },
-    init: function(params) {
-        var me = site.mode.admin.restore;
-        site.emptyDoms();
-        me.params = params;
-
-        site.mode.admin.home.initLeft();
-        site.log.init();
-
-        me.getData(function() {
-            me.initMiddle();
-
-            var methods = me.methods;
-            if (methods[params.method]) {
-                methods[params.method](params);
-            }
-
-            site.showDoms();
-        });
-    },
-    initMiddle: function() {
-        site.doms.middle.append(site.mustache.render('restore', site.data));
-    },
-    getParams: function($form) {
+    getDomData: function($form) {
         var me = site.mode.admin.restore;
 
         // Prepare data for the request
         var s = Meta.string.$(),
             source = $form.select('select[name="source"]').val(),
             params = {
-                backup: Meta.string.$(me.params.id).toInt()
+                backup: Meta.string.$(site.data.params.id).toInt()
             };
 
 
@@ -97,7 +74,7 @@ site.mode.admin.restore = {
     },
     loadFolders: function(path) {
         var me = site.mode.admin.restore;
-        var backup = me.getBackup(me.params.id);
+        var backup = me.getBackup(site.data.params.id);
         var user = backup.system_user.id;
         
         var params = {
@@ -136,42 +113,5 @@ site.mode.admin.restore = {
                 $container.inner('<div>Empty</div>');
             }
         });
-    },
-    methods: {
-        process: function() {
-            var me = site.mode.admin.restore;
-            var $form = Meta.dom.$().select('#restore-form');
-            $form.on('submit', function(){
-                var params = me.getParams($form);
-                var backup = params.backup;
-                if (!backup) {
-                    return false;
-                }
-
-                Meta.jsonrpc.push({
-                    method:'admin.backup.restore',
-                    params:params,
-                    callback:function(v){
-                        var err = v.error;
-                        if (err) {
-                            site.log.errors(err);
-                            return false;
-                        }
-
-                        if (v.result) {
-                            location.hash = '#mode=restore';
-                            return true;
-                        }
-
-                        return false;
-                    }
-                }).execute();
-                return false;
-            });
-
-            // Folders loaders
-            me.loadFolders();
-            Meta.jsonrpc.execute();
-        }
     }
-};
+});

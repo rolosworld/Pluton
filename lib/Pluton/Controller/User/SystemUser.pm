@@ -4,6 +4,68 @@ use namespace::autoclean;
 
 BEGIN { extends 'Main::Controller' }
 
+=head2 addmount
+
+=cut
+
+sub addmount : Remote {
+    my ( $self, $c, $params ) = @_;
+    my $system_user = $c->model('DB::SystemUser')->search({
+        owner => $c->user->id,
+    })->next;
+    $$params{system_user} = $system_user->id;
+    return $self->getObject( 'SystemUser', c => $c )->add_mount($params);
+}
+
+=head2 rmmount
+
+=cut
+
+sub rmmount : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->rm_mount($params);
+}
+
+=head2 editmount
+
+=cut
+
+sub editmount : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->edit_mount($params);
+}
+
+=head2 mountauthinfo2
+
+=cut
+
+sub mountauthinfo2 : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->mount_authinfo2($params);
+}
+
+=head2 mountremount
+
+=cut
+
+sub mountremount : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->mount_remount($params);
+}
+
+=head2 list_mounts
+
+=cut
+
+sub list_mounts : Remote {
+    my ( $self, $c, $params ) = @_;
+    my $system_user = $c->model('DB::SystemUser')->search({
+        owner => $c->user->id,
+    })->next;
+    $$params{system_user} = $system_user->id;
+    return $self->getObject( 'SystemUser', c => $c )->list_mounts($params);
+}
+
 =head2 list
 
 =cut
@@ -11,32 +73,6 @@ BEGIN { extends 'Main::Controller' }
 sub list : Remote {
     my ( $self, $c, $params ) = @_;
     return $self->getObject( 'SystemUser', c => $c )->list;
-}
-
-=head2 s3ql
-
-=cut
-
-sub s3ql : Remote {
-    my ( $self, $c, $params ) = @_;
-    my $system_user = $c->model('DB::SystemUser')->search({
-        owner => $c->user->id,
-    })->next;
-    $$params{user} = $system_user->id;
-    return $self->getObject( 'SystemUser', c => $c )->s3ql( $params );
-}
-
-=head2 s3ql_remount
-
-=cut
-
-sub s3ql_remount : Remote {
-    my ( $self, $c, $params ) = @_;
-    my $system_user = $c->model('DB::SystemUser')->search({
-        owner => $c->user->id,
-    })->next;
-    $$params{user} = $system_user->id;
-    return $self->getObject( 'SystemUser', c => $c )->s3ql_remount( $params );
 }
 
 =head2 folders
