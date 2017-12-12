@@ -446,6 +446,7 @@ sub sources {
     my @_output = split("\n", $output);
     shift @_output;
     shift @_output;
+    shift @_output;
 
     return \@_output;
 }

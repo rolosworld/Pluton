@@ -193,6 +193,29 @@ site.mode.user.system_user = Meta( site.obj.mode ).extend({
             }
         }).execute();
     },
+    mountMkfs: function(params) {
+        Meta.jsonrpc.push({
+            method:'user.systemuser.mountmkfs',
+            params:{
+                id:params.mid,
+            },
+            callback:function(v){
+                var err = v.error;
+                if (err) {
+                    site.log.errors(err);
+                    return false;
+                }
+
+                if (v.result) {
+                    var $log = Meta.dom.$().select('#system_user-mount_log');
+                    $log.text(v.result);
+                    return true;
+                }
+
+                return false;
+            }
+        }).execute();
+    },
     mountRemount: function(params) {
         Meta.jsonrpc.push({
             method:'user.systemuser.mountremount',

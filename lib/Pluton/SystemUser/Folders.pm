@@ -35,6 +35,7 @@ sub ls {
     my $output = $self->run({user => $$params{user}, command => "find '$path' -maxdepth 1 -type d"});
     my @_output = split("\n", $output);
     shift @_output;
+    shift @_output;
 
     return join("\n", @_output);
 }

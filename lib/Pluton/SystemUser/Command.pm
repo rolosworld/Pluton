@@ -72,6 +72,7 @@ sub run {
         username => $system_user->username,
         password => $pass_decrypted,
         command  => $$params{command},
+        fs_passphrase => $$params{fs_passphrase},
     };
 
     my $output = $self->raw($run);
@@ -89,23 +90,30 @@ sub raw {
     my $command = $$params{command};
     my $system_user = $$params{username};
     my $system_pass = $$params{password};
+    my $fs_passphrase = $$params{fs_passphrase};
 
-    my @parameters = ('-c', $command, '-', $system_user);
+    my @parameters = ('su', '-c', $command, '-', $system_user);
 
-    $c->log->debug($command);
-    if (!$exp->spawn('su', @parameters)) {
+    my $output = join(' ', @parameters) . "\n";
+    $c->log->debug("\n" . $output);
+    if (!$exp->spawn(@parameters)) {
         $c->log->error("Cannot spawn $command: $!");
         return;
     }
 
     my $timeout = 1;
-    my $output;
     $exp->log_file(sub {
         $output .= shift;
     });
     $exp->expect($timeout,
                  [
-                  qr/password:/i => sub {
+                  'encryption password: ' => sub {
+                      shift->send("$fs_passphrase\n");
+                      exp_continue;
+                  },
+                 ],
+                 [
+                  'Password: ' => sub {
                       shift->send("$system_pass\n");
                       exp_continue;
                   },

@@ -75,7 +75,7 @@ sub add {
 
     my @_output = split("\n", $output);
 
-    if (scalar( @_output ) < 2 && $_output[1] ne $$params{username}) {
+    if (scalar( @_output ) < 2 && $_output[2] ne $$params{username}) {
         $self->jsonrpc_error(
             [   {   path    => '/username',
                     message => 'User doesn\'t exist in the OS',
@@ -199,6 +199,7 @@ sub folders {
     $path = $path || '';
     my $output = $self->run({user => $$params{user}, command => "find './$path' -maxdepth 1 -type d -regex '\.[/0-9a-zA-Z_ -]+'"});
     my @_output = split("\n", $output);
+    shift @_output;
     shift @_output;
     shift @_output;
 
@@ -334,7 +335,7 @@ sub generate_authinfo2 {
 
     my $output = $self->run({user => $system_user, command => "pwd"});
     my @_output = split("\n", $output);
-    my $pwd = $_output[1];
+    my $pwd = $_output[2];
 
     my $authinfo2 = '';
     while (my $mount = $mounts->next) {
@@ -397,6 +398,29 @@ sub mount_authinfo2 {
 
     my $mount = $self->getObject('Mount', c => $c, mount => $exist);
     return $mount->save_authinfo2;
+}
+
+sub mount_mkfs {
+    my ($self, $params) = @_;
+    my $c = $self->c;
+
+    my $exist = $c->model('DB::Mount')->search({
+        creator => $c->user->id,
+        id => $$params{id},
+    })->next;
+
+    if ( !$exist ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/id',
+                    message => 'Mount does not exist',
+                }
+            ]);
+
+        return;
+    }
+
+    my $mount = $self->getObject('Mount', c => $c, mount => $exist);
+    return $mount->mkfs;
 }
 
 sub mount_remount {

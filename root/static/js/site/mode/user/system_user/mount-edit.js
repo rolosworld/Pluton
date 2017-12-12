@@ -51,6 +51,11 @@ site.mode.user.system_user.methods['mount-edit'] = Meta( site.obj.method ).exten
             return false;
         });
 
+        $form.select('#system_user-mount-generate_mkfs').on('click', function() {
+            site.mode.user.system_user.mountMkfs( params );
+            return false;
+        });
+
         $form.select('#system_user-mount-generate_remount').on('click', function() {
             site.mode.user.system_user.mountRemount( params );
             return false;

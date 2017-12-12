@@ -58,6 +58,15 @@ sub mountauthinfo2 : Remote {
     return $self->getObject( 'SystemUser', c => $c )->mount_authinfo2($params);
 }
 
+=head2 mountmkfs
+
+=cut
+
+sub mountmkfs : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->mount_mkfs($params);
+}
+
 =head2 mountremount
 
 =cut

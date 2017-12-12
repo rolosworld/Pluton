@@ -11,6 +11,10 @@ sub fname {
     return '~/.pluton/authinfo/' . $_[0]->mount->id;
 }
 
+sub cache_path {
+    return '~/.pluton/cache/' . $_[0]->mount->id;
+}
+
 sub path {
     return '~/.pluton/backup/' . $_[0]->mount->id;
 }
@@ -19,13 +23,55 @@ sub local_path {
     return '.pluton/backup/' . $_[0]->mount->id;
 }
 
+sub storage_url {
+    my ($self) = @_;
+    my $mount = $self->mount;
+    my $storage_url = $mount->storage_url;
+
+    my @parts = split(':', $storage_url);
+    if ($parts[0] ne 'local') {
+        return $storage_url;
+    }
+
+    my $system_user = $mount->get_column('system_user');
+    my $output = $self->run({user => $system_user, command => "pwd"});
+    my @_output = split("\n", $output);
+    my $pwd = $_output[2];
+
+    return 'local://' . $pwd . substr( $storage_url, 8 );
+}
+
+sub mkfs {
+    my ($self) = @_;
+    my $c = $self->c;
+    my $mount = $self->mount;
+    my $storage_url = $self->storage_url;
+    my $suser = $mount->get_column('system_user');
+    my $fname = $self->fname;
+    my $cache_path = $self->cache_path;
+    my $path = $self->path;
+
+    # Create cache folder
+    my $output = $self->run({user => $suser, command => "mkdir -p $cache_path"});
+
+    # mkfs
+    $output .= $self->run({
+        user => $suser,
+        command => "mkfs.s3ql --force --cachedir $cache_path --authfile $fname '$storage_url'",
+        fs_passphrase => $mount->fs_passphrase,
+    });
+
+    return $output;
+}
+
 sub remount {
     my ($self) = @_;
     my $c = $self->c;
     my $mount = $self->mount;
-    my $storage_url = $mount->storage_url;
+    my $storage_url = $self->storage_url;
     my $suser = $mount->get_column('system_user');
     my $fname = $self->fname;
+    my $cache_path = $self->cache_path;
     my $path = $self->path;
 
     # Create backup folder
@@ -35,10 +81,10 @@ sub remount {
     $output .= $self->run({user => $suser, command => "umount.s3ql $path"});
 
     # fsck
-    $output .= $self->run({user => $suser, command => "fsck.s3ql --authfile $fname --force '$storage_url'"});
+    $output .= $self->run({user => $suser, command => "fsck.s3ql --cachedir $cache_path --authfile $fname --force '$storage_url'"});
 
     # mount
-    $output .= $self->run({user => $suser, command => "mount.s3ql --authfile $fname '$storage_url' $path"});
+    $output .= $self->run({user => $suser, command => "mount.s3ql --cachedir $cache_path --authfile $fname '$storage_url' $path"});
 
     # Create current and previous folders if they doesn't exist
     $output .= $self->run({user => $suser, command => "mkdir -p $path/current $path/previous"});
@@ -50,19 +96,13 @@ sub generate_authinfo2 {
     my ($self) = @_;
     my $c = $self->c;
     my $mount = $self->mount;
+    my $storage_url = $self->storage_url;
     my $system_user = $mount->get_column('system_user');
 
-    my $output = $self->run({user => $system_user, command => "pwd"});
-    my @_output = split("\n", $output);
-    my $pwd = $_output[1];
+    my $output;
 
     my $authinfo2 = '[' . $mount->name . "]\n";
 
-    my $storage_url = $mount->storage_url;
-    my @parts = split(':', $storage_url);
-    if ($parts[0] eq 'local') {
-        $storage_url = 'local://' . $pwd . substr( $storage_url, 8 );
-    }
 
     $authinfo2 .= 'storage-url: ' . $storage_url . "\n";
 
