@@ -101,7 +101,7 @@ sub raw {
         return;
     }
 
-    my $timeout = 1;
+    my $timeout = 30;
     $exp->log_file(sub {
         $output .= shift;
     });
