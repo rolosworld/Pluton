@@ -46,21 +46,6 @@ site.mode.user.system_user.methods['mount-edit'] = Meta( site.obj.method ).exten
             }
         });
 
-        $form.select('#system_user-mount-generate_authinfo2').on('click', function() {
-            site.mode.user.system_user.mountAuthinfo2( params );
-            return false;
-        });
-
-        $form.select('#system_user-mount-generate_mkfs').on('click', function() {
-            site.mode.user.system_user.mountMkfs( params );
-            return false;
-        });
-
-        $form.select('#system_user-mount-generate_remount').on('click', function() {
-            site.mode.user.system_user.mountRemount( params );
-            return false;
-        });
-
         $form.on('submit', function() {
             var params = site.mode.user.system_user.getDomData( $form );
 
@@ -76,7 +61,7 @@ site.mode.user.system_user.methods['mount-edit'] = Meta( site.obj.method ).exten
 
                     if ( v.result ) {
                         site.data.system_users.mounts = v.result;
-                        location.hash = '#mode=system_user;method=configuration;user=' + site.data.params.user;
+                        location.hash = '#mode=system_user;method=mount-view;mid=' + site.data.params.mid + ';user=' + site.data.params.user;
                         return true;
                     }
 

@@ -69,6 +69,7 @@
                /static/js/site/mode/admin/system_user/mount-add.js
                /static/js/site/mode/admin/system_user/mount-rm.js
                /static/js/site/mode/admin/system_user/mount-edit.js
+               /static/js/site/mode/admin/system_user/mount-view.js
                /static/js/site/mode/admin/system_user/add.js
                /static/js/site/mode/admin/system_user/rm.js
                /static/js/site/mode/admin/system_user/list.js
@@ -93,6 +94,7 @@
                /static/js/site/mode/user/system_user/mount-add.js
                /static/js/site/mode/user/system_user/mount-rm.js
                /static/js/site/mode/user/system_user/mount-edit.js
+               /static/js/site/mode/user/system_user/mount-view.js
                /static/js/site/mode/user/system_user/list.js
                /static/js/site/mode/user/schedule.js
                /static/js/site/mode/user/schedule/main.js
@@ -125,6 +127,7 @@
             'system_user-add-form' => '/static/mustache/system_user-add-form.mustache',
             'system_user-configuration-list' => '/static/mustache/system_user-configuration-list.mustache',
             'system_user-mount-form' => '/static/mustache/system_user-mount-form.mustache',
+            'system_user-mount-view' => '/static/mustache/system_user-mount-view.mustache',
 
             'system_user-mount-generic-fields' => '/static/mustache/system_user-mount-generic-fields.mustache',
             'system_user-mount-b2-fields' => '/static/mustache/system_user-mount-b2-fields.mustache',
@@ -135,6 +138,16 @@
             'system_user-mount-rackspace-fields' => '/static/mustache/system_user-mount-rackspace-fields.mustache',
             'system_user-mount-s3-fields' => '/static/mustache/system_user-mount-s3-fields.mustache',
             'system_user-mount-s3c-fields' => '/static/mustache/system_user-mount-s3c-fields.mustache',
+
+            'system_user-mount-generic-fields_view' => '/static/mustache/system_user-mount-generic-fields_view.mustache',
+            'system_user-mount-b2-fields_view' => '/static/mustache/system_user-mount-b2-fields_view.mustache',
+            'system_user-mount-gs-fields_view' => '/static/mustache/system_user-mount-gs-fields_view.mustache',
+            'system_user-mount-swift-fields_view' => '/static/mustache/system_user-mount-swift-fields_view.mustache',
+            'system_user-mount-swiftks-fields_view' => '/static/mustache/system_user-mount-swiftks-fields_view.mustache',
+            'system_user-mount-local-fields_view' => '/static/mustache/system_user-mount-local-fields_view.mustache',
+            'system_user-mount-rackspace-fields_view' => '/static/mustache/system_user-mount-rackspace-fields_view.mustache',
+            'system_user-mount-s3-fields_view' => '/static/mustache/system_user-mount-s3-fields_view.mustache',
+            'system_user-mount-s3c-fields_view' => '/static/mustache/system_user-mount-s3c-fields_view.mustache',
 
             'system_user-list' => '/static/mustache/system_user-list.mustache',
             schedule => '/static/mustache/schedule.mustache',

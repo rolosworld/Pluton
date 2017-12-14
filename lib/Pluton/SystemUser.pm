@@ -251,7 +251,7 @@ sub add_mount {
         return;
     }
 
-    $c->model('DB::Mount')->create({
+    my $mount = $c->model('DB::Mount')->create({
         creator => $c->user->id,
         system_user => $$params{system_user},
         name => $$params{name},
@@ -260,6 +260,9 @@ sub add_mount {
         backend_password => $$params{backend_password},
         fs_passphrase => $$params{fs_passphrase},
     });
+
+    # Generate the authinfo2
+    $self->mount_authinfo2({id => $mount->id});
 
     return $self->list_mounts($params);
 }
@@ -321,60 +324,10 @@ sub edit_mount {
         fs_passphrase => $$params{fs_passphrase},
     });
 
+    # Generate the authinfo2
+    $self->mount_authinfo2({id => $exist->id});
+
     return $self->list_mounts({system_user => $exist->get_column('system_user')});
-}
-
-sub generate_authinfo2 {
-    my ($self, $system_user) = @_;
-    my $c = $self->c;
-
-    my $mounts = $c->model('DB::Mount')->search({
-        creator => $c->user->id,
-        system_user => $system_user,
-    });
-
-    my $output = $self->run({user => $system_user, command => "pwd"});
-    my @_output = split("\n", $output);
-    my $pwd = $_output[2];
-
-    my $authinfo2 = '';
-    while (my $mount = $mounts->next) {
-        $authinfo2 .= '[' . $mount->name . "]\n";
-
-        my $storage_url = $mount->storage_url;
-        my @parts = split(':', $storage_url);
-        if ($parts[0] eq 'local') {
-            $storage_url = 'local://' . $pwd . substr( $storage_url, 8 );
-        }
-
-        $authinfo2 .= 'storage-url: ' . $storage_url . "\n";
-
-        if ( $mount->backend_login ) {
-            $authinfo2 .= 'backend-login: ' . $mount->backend_login . "\n";
-        }
-
-        if ( $mount->backend_password ) {
-            $authinfo2 .= 'backend-password: ' . $mount->backend_password . "\n";
-        }
-
-        $authinfo2 .= 'fs-passphrase: ' . $mount->fs_passphrase . "\n\n";
-    }
-
-    return $authinfo2;
-}
-
-sub save_authinfo2 {
-    my ($self, $params) = @_;
-    # Fill the file with the content, line per line
-    my $authinfo2 = $$params{authinfo2};
-
-    # Don't allow single quotes
-    $authinfo2 =~ s/'//g;
-    my @content = split("\n", $authinfo2);
-    $self->run({user => $$params{user}, command => "cat /dev/null > ~/.s3ql/authinfo2"});
-    foreach my $row (@content) {
-        $self->run({user => $$params{user}, command => "echo '$row' >> ~/.s3ql/authinfo2"});
-    }
 }
 
 sub mount_authinfo2 {

@@ -33,24 +33,8 @@
   </div>
 
   <input type="submit" value="{{#id}}Update{{/id}}{{^id}}Add{{/id}}" class="btn"/>
-  {{#id}}
-  <a href="#" id="system_user-mount-generate_authinfo2" class="pluton-menu-item pluton-system_user btn">
-    Generate Authinfo2
+  <a href="#mode=system_user;method=mount-view;mid={{id}};user={{system_user}}" class="btn" style="text-transform:none;">
+     Cancel
   </a>
-  <a href="#" id="system_user-mount-generate_mkfs" class="pluton-menu-item pluton-system_user btn">
-    Mkfs
-  </a>
-  <a href="#" id="system_user-mount-generate_remount" class="pluton-menu-item pluton-system_user btn">
-    Mount
-  </a>
-  {{/id}}
-  <a href="#mode=system_user;method=configuration;user={{params.user}}" class="pluton-menu-item pluton-system_user btn">
-    Cancel
-  </a>
-  {{#id}}
-  <a href="#mode=system_user;method=mount-rm;mid={{id}};user={{params.user}}" class="pluton-menu-item pluton-system_user btn">
-    Delete
-  </a>
-  {{/id}}
 </form>
 <pre id="system_user-mount_log"></pre>

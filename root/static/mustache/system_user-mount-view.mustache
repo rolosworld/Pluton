@@ -1,0 +1,48 @@
+<table>
+  <tr>
+    <th>Name:</th><td>{{name}}</td>
+  </tr>
+  <tr>
+    <th>Type:</th>
+    <td>
+      {{#type.generic}}Generic{{/type.generic}}
+      {{#type.gs}}Google{{/type.gs}}
+      {{#type.s3}}Amazon S3{{/type.s3}}
+      {{#type.s3c}}S3 Compatible{{/type.s3c}}
+      {{#type.b2}}Black Blaze{{/type.b2}}
+      {{#type.swift}}Swift{{/type.swift}}
+      {{#type.swiftks}}Swift v2{{/type.swiftks}}
+      {{#type.rackspace}}Rackspace Cloud{{/type.rackspace}}
+      {{#type.local}}Local{{/type.local}}
+    </td>
+  </tr>
+  {{#type.generic}}{{> system_user-mount-generic-fields_view}}{{/type.generic}}
+  {{#type.gs}}{{> system_user-mount-gs-fields_view}}{{/type.gs}}
+  {{#type.s3}}{{> system_user-mount-s3-fields_view}}{{/type.s3}}
+  {{#type.s3c}}{{> system_user-mount-s3c-fields_view}}{{/type.s3c}}
+  {{#type.b2}}{{> system_user-mount-b2-fields_view}}{{/type.b2}}
+  {{#type.swift}}{{> system_user-mount-swift-fields_view}}{{/type.swift}}
+  {{#type.swiftks}}{{> system_user-mount-swiftks-fields_view}}{{/type.swiftks}}
+  {{#type.rackspace}}{{> system_user-mount-rackspace-fields_view}}{{/type.rackspace}}
+  {{#type.local}}{{> system_user-mount-local-fields_view}}{{/type.local}}
+</table>
+
+<a href="#mode=system_user;method=mount-edit;mid={{id}};user={{system_user}}" class="btn" style="text-transform:none;">Edit</a>
+
+<a href="#" id="system_user-mount-generate_authinfo2" class="pluton-menu-item pluton-system_user btn">
+  Generate Authinfo2
+</a>
+<a href="#" id="system_user-mount-generate_mkfs" class="pluton-menu-item pluton-system_user btn">
+  Mkfs
+</a>
+<a href="#" id="system_user-mount-generate_remount" class="pluton-menu-item pluton-system_user btn">
+  Mount
+</a>
+<a href="#mode=system_user;method=configuration;user={{params.user}}" class="pluton-menu-item pluton-system_user btn">
+  Cancel
+</a>
+<a href="#mode=system_user;method=mount-rm;mid={{id}};user={{params.user}}" class="pluton-menu-item pluton-system_user btn">
+  Delete
+</a>
+
+<pre id="system_user-mount_log"></pre>
