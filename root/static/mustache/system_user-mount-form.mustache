@@ -33,8 +33,15 @@
   </div>
 
   <input type="submit" value="{{#id}}Update{{/id}}{{^id}}Add{{/id}}" class="btn"/>
+  {{#id}}
   <a href="#mode=system_user;method=mount-view;mid={{id}};user={{system_user}}" class="btn" style="text-transform:none;">
      Cancel
   </a>
+  {{/id}}
+  {{^id}}
+  <a href="#mode=system_user;method=configuration;user={{params.user}}" class="btn" style="text-transform:none;">
+     Cancel
+  </a>
+  {{/id}}
 </form>
 <pre id="system_user-mount_log"></pre>
