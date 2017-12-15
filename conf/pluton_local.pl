@@ -67,7 +67,6 @@
                /static/js/site/mode/admin/system_user/main.js
                /static/js/site/mode/admin/system_user/configuration.js
                /static/js/site/mode/admin/system_user/mount-add.js
-               /static/js/site/mode/admin/system_user/mount-rm.js
                /static/js/site/mode/admin/system_user/mount-edit.js
                /static/js/site/mode/admin/system_user/mount-view.js
                /static/js/site/mode/admin/system_user/add.js
@@ -92,7 +91,6 @@
                /static/js/site/mode/user/system_user/main.js
                /static/js/site/mode/user/system_user/configuration.js
                /static/js/site/mode/user/system_user/mount-add.js
-               /static/js/site/mode/user/system_user/mount-rm.js
                /static/js/site/mode/user/system_user/mount-edit.js
                /static/js/site/mode/user/system_user/mount-view.js
                /static/js/site/mode/user/system_user/list.js

@@ -64,6 +64,19 @@ sub mkfs {
     return $output;
 }
 
+sub umount {
+    my ($self) = @_;
+    my $c = $self->c;
+    my $mount = $self->mount;
+    my $suser = $mount->get_column('system_user');
+    my $path = $self->path;
+
+    # umount first
+    my $output .= $self->run({user => $suser, command => "umount.s3ql $path"});
+
+    return $output;
+}
+
 sub remount {
     my ($self) = @_;
     my $c = $self->c;

@@ -261,8 +261,7 @@ sub add_mount {
         fs_passphrase => $$params{fs_passphrase},
     });
 
-    # Generate the authinfo2
-    $self->mount_authinfo2({id => $mount->id});
+    $self->getObject('Mount', c => $c, mount => $mount)->save_authinfo2;
 
     return $self->list_mounts($params);
 }
@@ -285,6 +284,9 @@ sub rm_mount {
 
         return;
     }
+
+    # umount before delete
+    $self->getObject('Mount', c => $c, mount => $exist)->umount;
 
     my $system_user = $exist->get_column('system_user');
     $exist->delete;
@@ -316,6 +318,11 @@ sub edit_mount {
         return;
     }
 
+    my $mount = $self->getObject('Mount', c => $c, mount => $exist);
+
+    # umount before generating the authinfo2
+    $mount->umount;
+
     $exist->update({
         name => $$params{name},
         storage_url => $$params{storage_url},
@@ -325,7 +332,7 @@ sub edit_mount {
     });
 
     # Generate the authinfo2
-    $self->mount_authinfo2({id => $exist->id});
+    $mount->save_authinfo2;
 
     return $self->list_mounts({system_user => $exist->get_column('system_user')});
 }
@@ -397,6 +404,29 @@ sub mount_remount {
 
     my $mount = $self->getObject('Mount', c => $c, mount => $exist);
     return $mount->remount;
+}
+
+sub mount_umount {
+    my ($self, $params) = @_;
+    my $c = $self->c;
+
+    my $exist = $c->model('DB::Mount')->search({
+        creator => $c->user->id,
+        id => $$params{id},
+    })->next;
+
+    if ( !$exist ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/id',
+                    message => 'Mount does not exist',
+                }
+            ]);
+
+        return;
+    }
+
+    my $mount = $self->getObject('Mount', c => $c, mount => $exist);
+    return $mount->umount;
 }
 
 no Moose;

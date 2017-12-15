@@ -46,5 +46,15 @@ site.mode.admin.system_user.methods['mount-view'] = Meta( site.obj.method ).exte
             site.mode.admin.system_user.mountRemount( params );
             return false;
         });
+
+        $container.select('#system_user-mount-generate_umount').on('click', function() {
+            site.mode.admin.system_user.mountUmount( params );
+            return false;
+        });
+
+        $container.select('#system_user-mount-generate_rmmount').on('click', function() {
+            site.mode.admin.system_user.rmMount( params );
+            return false;
+        });
     }
 });

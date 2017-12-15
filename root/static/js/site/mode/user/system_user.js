@@ -216,6 +216,53 @@ site.mode.user.system_user = Meta( site.obj.mode ).extend({
             }
         }).execute();
     },
+    rmMount: function(params) {
+        Meta.jsonrpc.push({
+            method:'user.systemuser.rmmount',
+            params:{
+                id:params.mid,
+                system_user:params.user
+            },
+            callback:function(v){
+                var err = v.error;
+                if (err) {
+                    site.log.errors(err);
+                    return false;
+                }
+
+                if (v.result) {
+                    site.data.system_users.mounts = v.result;
+                    location.hash = '#mode=system_user;method=configuration;user=' + site.data.params.user;
+                    return true;
+                }
+
+                return false;
+            }
+        }).execute();
+    },
+    mountUmount: function(params) {
+        Meta.jsonrpc.push({
+            method:'user.systemuser.mountumount',
+            params:{
+                id:params.mid,
+            },
+            callback:function(v){
+                var err = v.error;
+                if (err) {
+                    site.log.errors(err);
+                    return false;
+                }
+
+                if (v.result) {
+                    var $log = Meta.dom.$().select('#system_user-mount_log');
+                    $log.text(v.result);
+                    return true;
+                }
+
+                return false;
+            }
+        }).execute();
+    },
     mountRemount: function(params) {
         Meta.jsonrpc.push({
             method:'user.systemuser.mountremount',
