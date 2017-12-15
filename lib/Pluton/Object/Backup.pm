@@ -53,6 +53,32 @@ sub import_crontab {
     return $self->run({user => $user, command => "cat $crontab_file | crontab -"});
 }
 
+sub add_to_crontab {
+    my ($self) = @_;
+    my $c = $self->c;
+    my $backup = $self->backup;
+    my $user = $backup->get_column('system_user');
+    my $schedule = $backup->schedule;
+    my $crontab_file = $self->crontab_file;
+    my $script_file = $self->script_file;
+
+    my $minute = $schedule->minute;
+    my $hour = $schedule->hour;
+    my $day_of_month = $schedule->day_of_month;
+    my $month = $schedule->month;
+    my $day_of_week = $schedule->day_of_week;
+
+    $minute = defined $minute ? $minute : '*';
+    $hour = defined $hour ? $hour : '*';
+    $day_of_month = defined $day_of_month ? $day_of_month : '*';
+    $month = defined $month ? $month : '*';
+    $day_of_week = defined $day_of_week ? $day_of_week : '*';
+
+    my $schedule_str = "$minute $hour $day_of_month $month $day_of_week";
+
+    return $self->run({user => $user, command => "echo '$schedule_str $script_file' >>  $crontab_file"});
+}
+
 sub cleanup_crontab {
     my ($self) = @_;
     my $backup = $self->backup;
@@ -134,28 +160,7 @@ sub crontab {
     }
 
     $output .= $self->cleanup_crontab;
-
-    # Add new crontab line
-    my $schedule = $c->model('DB::Schedule')->search({
-        id => $backup->get_column('schedule'),
-    })->next;
-
-    my $minute = $schedule->minute;
-    my $hour = $schedule->hour;
-    my $day_of_month = $schedule->day_of_month;
-    my $month = $schedule->month;
-    my $day_of_week = $schedule->day_of_week;
-
-    $minute = defined $minute ? $minute : '*';
-    $hour = defined $hour ? $hour : '*';
-    $day_of_month = defined $day_of_month ? $day_of_month : '*';
-    $month = defined $month ? $month : '*';
-    $day_of_week = defined $day_of_week ? $day_of_week : '*';
-
-    my $schedule_str = "$minute $hour $day_of_month $month $day_of_week";
-
-    $output .= $self->run({user => $user, command => "echo '$schedule_str $script_file' >>  $crontab_file"});
-
+    $output .= $self->add_to_crontab;
     $output .= $self->import_crontab;
 
     return $output;

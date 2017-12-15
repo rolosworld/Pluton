@@ -78,6 +78,20 @@ sub edit {
     };
     $exist->update($values);
 
+    my $backups = $c->model('DB::Backup')->search({
+        schedule => $exist->id,
+    },{
+        prefetch => 'schedule',
+    });
+
+    my $output = '';
+    while (my $backup = $backups->next) {
+        $backup = $self->getObject('Object::Backup', c => $c, backup => $backup);
+        $output .= $backup->cleanup_crontab;
+        $output .= $backup->add_to_crontab;
+        $output .= $backup->import_crontab;
+    }
+
     return $self->list;
 }
 
