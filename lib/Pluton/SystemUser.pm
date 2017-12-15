@@ -261,7 +261,7 @@ sub add_mount {
         fs_passphrase => $$params{fs_passphrase},
     });
 
-    $self->getObject('Mount', c => $c, mount => $mount)->save_authinfo2;
+    $self->getObject('Object::Mount', c => $c, mount => $mount)->save_authinfo2;
 
     return $self->list_mounts($params);
 }
@@ -286,7 +286,7 @@ sub rm_mount {
     }
 
     # umount before delete
-    $self->getObject('Mount', c => $c, mount => $exist)->clean;
+    $self->getObject('Object::Mount', c => $c, mount => $exist)->clean;
 
     my $system_user = $exist->get_column('system_user');
     $exist->delete;
@@ -318,7 +318,7 @@ sub edit_mount {
         return;
     }
 
-    my $mount = $self->getObject('Mount', c => $c, mount => $exist);
+    my $mount = $self->getObject('Object::Mount', c => $c, mount => $exist);
 
     # umount before generating the authinfo2
     $mount->umount;
@@ -356,7 +356,7 @@ sub mount_authinfo2 {
         return;
     }
 
-    my $mount = $self->getObject('Mount', c => $c, mount => $exist);
+    my $mount = $self->getObject('Object::Mount', c => $c, mount => $exist);
     return $mount->save_authinfo2;
 }
 
@@ -379,7 +379,7 @@ sub mount_mkfs {
         return;
     }
 
-    my $mount = $self->getObject('Mount', c => $c, mount => $exist);
+    my $mount = $self->getObject('Object::Mount', c => $c, mount => $exist);
     return $mount->mkfs;
 }
 
@@ -402,7 +402,7 @@ sub mount_remount {
         return;
     }
 
-    my $mount = $self->getObject('Mount', c => $c, mount => $exist);
+    my $mount = $self->getObject('Object::Mount', c => $c, mount => $exist);
     return $mount->remount;
 }
 
@@ -425,7 +425,7 @@ sub mount_umount {
         return;
     }
 
-    my $mount = $self->getObject('Mount', c => $c, mount => $exist);
+    my $mount = $self->getObject('Object::Mount', c => $c, mount => $exist);
     return $mount->umount;
 }
 

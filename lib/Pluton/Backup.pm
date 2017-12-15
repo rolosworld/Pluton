@@ -132,10 +132,7 @@ sub edit {
     };
 
     $exist->update($values);
-    $self->crontab({
-        backup => $exist,
-        mount => $mount,
-    });
+    $self->getObject('Object::Backup', c=> $c, backup => $exist)->crontab;
 
     return $self->list;
 }
@@ -221,7 +218,7 @@ sub add {
         folders => join("\n", @{$$params{folders}}),
     };
     my $backup = $c->model('DB::Backup')->create($values);
-    $self->crontab({backup => $backup});
+    $self->getObject('Object::Backup', c=> $c, backup => $backup)->crontab;
 
     return $self->list;
 }
@@ -236,97 +233,6 @@ sub list {
 
     return \@backups;
 }
-
-sub crontab {
-    my ($self, $params) = @_;
-    my $c = $self->c;
-    my $backup = $$params{backup};
-    my $mount = $backup->mount;
-    my $user = $backup->get_column('system_user');
-    my $keep = $backup->keep;
-    my $bid = $backup->id;
-
-    my $backup_dest = $self->getObject('Mount', c => $c, mount => $mount)->path;
-
-    # Create backup destination
-    my $output .= $self->run({user => $user, command => "mkdir -p $backup_dest/current/$bid $backup_dest/previous/$bid"});
-
-    # Create backup script
-    $output .= $self->run({user => $user, command => "echo '#!/bin/bash' >  ~/.pluton/scripts/$bid.sh"});
-    $output .= $self->run({user => $user, command => "echo 'STAMP=`date +\"%Y-%m-%dT%H-%M-%S\"`' >>  ~/.pluton/scripts/$bid.sh"});
-
-    # Manage previous backups
-    if ($keep) {
-        $output .= $self->run({user => $user, command => "echo 's3qlcp $backup_dest/current/$bid $backup_dest/previous/$bid/\${STAMP} &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
-        $output .= $self->run({user => $user, command => "echo 's3qllock $backup_dest/previous/$bid/\${STAMP} &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
-        $output .= $self->run({user => $user, command => "echo 'KEEP=$keep' >>  ~/.pluton/scripts/$bid.sh"});
-        $output .= $self->run({user => $user, command => "echo 'CURR=`find $backup_dest/previous/$bid -maxdepth 1 -type d | wc -l`' >>  ~/.pluton/scripts/$bid.sh"});
-        $output .= $self->run({user => $user, command => "echo 'DELTA=\$((CURR-KEEP))' >>  ~/.pluton/scripts/$bid.sh"});
-        $output .= $self->run({user => $user, command => "echo 'if [ \${DELTA} -gt \"1\" ]; then' >>  ~/.pluton/scripts/$bid.sh"});
-        $output .= $self->run({user => $user, command => "echo 'DELTA2=\$((DELTA-1))' >>  ~/.pluton/scripts/$bid.sh"});
-        $output .= $self->run({user => $user, command => "echo 'find $backup_dest/previous/$bid -maxdepth 1 -type d | sort | head -\${DELTA} | tail -\${DELTA2} | xargs -n1 s3qlrm &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
-        $output .= $self->run({user => $user, command => "echo 'fi' >>  ~/.pluton/scripts/$bid.sh"});
-    }
-
-    my @folders = split("\n", $backup->folders);
-    foreach my $folder (@folders) {
-
-        # Try that the destination folder doesn't conflict with some other folder
-        my @parts = split('/', $folder);
-        my $fname = join('_', @parts);
-
-        $output .= $self->run({user => $user, command => "echo 'rsync -avh ~/\"$folder/\" $backup_dest/current/$bid/\"$fname\" --delete &>> ~/.pluton/logs/$bid.log' >>  ~/.pluton/scripts/$bid.sh"});
-        $output .= $self->run({user => $user, command => "chmod 700 ~/.pluton/scripts/$bid.sh"});
-    }
-
-    # Export the current crontab into a file:
-    my $crontab = $self->run({user => $user, command => "crontab -l"});
-    my @rows = split("\n", $crontab);
-    my @new_crontab;
-
-    # Empty our crontab
-    $output .= $self->run({user => $user, command => "cat /dev/null >  ~/.pluton/crontab"});
-    foreach my $row (@rows) {
-        if ($row =~ /Password/ || $row =~ /no crontab for/) {
-            next;
-        }
-
-        my @parts = split(' ', $row);
-
-        # Filter out backup script
-        if ( $parts[-1] ne "~/.pluton/scripts/$bid.sh" ) {
-            $output .= $self->run({user => $user, command => "echo '$row' >>  ~/.pluton/crontab"});
-        }
-    }
-
-    # Add new crontab line
-    my $schedule = $c->model('DB::Schedule')->search({
-        id => $backup->get_column('schedule'),
-    })->next;
-
-    my $minute = $schedule->minute;
-    my $hour = $schedule->hour;
-    my $day_of_month = $schedule->day_of_month;
-    my $month = $schedule->month;
-    my $day_of_week = $schedule->day_of_week;
-
-    $minute = defined $minute ? $minute : '*';
-    $hour = defined $hour ? $hour : '*';
-    $day_of_month = defined $day_of_month ? $day_of_month : '*';
-    $month = defined $month ? $month : '*';
-    $day_of_week = defined $day_of_week ? $day_of_week : '*';
-
-    my $schedule_str = "$minute $hour $day_of_month $month $day_of_week";
-
-    $output .= $self->run({user => $user, command => "echo '$schedule_str ~/.pluton/scripts/$bid.sh' >>  ~/.pluton/crontab"});
-
-    # Import a file into crontab:
-    $output .= $self->run({user => $user, command => "cat ~/.pluton/crontab | crontab -"});
-    #$c->log->debug($output);
-
-    return $output;
-}
-
 
 our $__backup_restore_schema = {
     required   => [qw(backup destination)],
@@ -394,7 +300,7 @@ sub restore {
         $src = "previous/$bid/$source";
     }
 
-    my $backup_dest = $self->getObject('Mount', c => $c, mount => $backup->mount)->path;
+    my $backup_dest = $self->getObject('Object::Mount', c => $c, mount => $backup->mount)->path;
 
     my $output = $self->run({user => $backup->system_user->id, command => "rsync -avh $backup_dest/$src ~/'$dest'  &>> ~/.pluton/logs/$bid.log"});
     my @_output = split("\n", $output);
@@ -440,7 +346,7 @@ sub sources {
     }
 
     my $bid = $backup->id;
-    my $backup_dest = $self->getObject('Mount', c => $c, mount => $backup->mount)->local_path;
+    my $backup_dest = $self->getObject('Object::Mount', c => $c, mount => $backup->mount)->local_path;
     my $path = "$backup_dest/previous/$bid";
     my $output = $self->run({user => $backup->system_user->id, command => "find '$path' -maxdepth 1 -type d -regex '\.[/0-9a-zA-Z_ -]+' | cut -f 5 -d '/'"});
     my @_output = split("\n", $output);
