@@ -77,6 +77,29 @@ sub umount {
     return $output;
 }
 
+sub clean {
+    my ($self) = @_;
+    my $c = $self->c;
+    my $mount = $self->mount;
+    my $storage_url = $mount->storage_url;
+    my $suser = $mount->get_column('system_user');
+    my $fname = $self->fname;
+    my $cache_path = $self->cache_path;
+    my $script_path = $self->script_path;
+    my $path = $self->path;
+
+    # umount first
+    my $output .= $self->run({user => $suser, command => "umount.s3ql $path"});
+
+    # Remove backup folder, should be empty so use rmdir. It's suppose to fail if the path is not empty
+    $output .= $self->run({user => $suser, command => "rmdir $path"});
+
+    # Remove authinfo folder
+    $output .= $self->run({user => $suser, command => "rm -rf $cache_path $fname"});
+
+    return $output;
+}
+
 sub remount {
     my ($self) = @_;
     my $c = $self->c;

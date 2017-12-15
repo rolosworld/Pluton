@@ -286,7 +286,7 @@ sub rm_mount {
     }
 
     # umount before delete
-    $self->getObject('Mount', c => $c, mount => $exist)->umount;
+    $self->getObject('Mount', c => $c, mount => $exist)->clean;
 
     my $system_user = $exist->get_column('system_user');
     $exist->delete;
