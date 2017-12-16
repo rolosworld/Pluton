@@ -348,7 +348,7 @@ sub sources {
     my $bid = $backup->id;
     my $backup_dest = $self->getObject('Object::Mount', c => $c, mount => $backup->mount)->local_path;
     my $path = "$backup_dest/previous/$bid";
-    my $output = $self->run({user => $backup->system_user->id, command => "find '$path' -maxdepth 1 -type d -regex '\.[/0-9a-zA-Z_ -]+' | cut -f 5 -d '/'"});
+    my $output = $self->run({user => $backup->system_user->id, command => "find '$path' -maxdepth 1 -type d -regex '\.[/0-9a-zA-Z_ -]+' | cut -f 6 -d '/'"});
     my @_output = split("\n", $output);
     shift @_output;
     shift @_output;
