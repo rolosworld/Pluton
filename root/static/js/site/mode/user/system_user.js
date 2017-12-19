@@ -32,6 +32,29 @@ site.mode.user.system_user = Meta( site.obj.mode ).extend({
         Meta.jsonrpc.execute();
         queue.start();
     },
+    getMountStatus: function(suser, mount, cb) {
+        Meta.jsonrpc.push({
+            method:'user.systemuser.mountstat',
+            params:{
+                system_user: suser,
+                id: mount
+            },
+            callback:function(v){
+                var err = v.error;
+                if (err) {
+                    site.log.errors(err);
+                    return false;
+                }
+
+                if (v.result) {
+                    cb(v.result);
+                    return true;
+                }
+
+                return false;
+            }
+        });
+    },
     getMounts: function(suser, cb) {
         Meta.jsonrpc.push({
             method:'user.systemuser.list_mounts',
@@ -191,7 +214,7 @@ site.mode.user.system_user = Meta( site.obj.mode ).extend({
 
                 return false;
             }
-        }).execute();
+        });
     },
     mountMkfs: function(params) {
         Meta.jsonrpc.push({
@@ -214,7 +237,7 @@ site.mode.user.system_user = Meta( site.obj.mode ).extend({
 
                 return false;
             }
-        }).execute();
+        });
     },
     rmMount: function(params) {
         Meta.jsonrpc.push({
@@ -238,7 +261,7 @@ site.mode.user.system_user = Meta( site.obj.mode ).extend({
 
                 return false;
             }
-        }).execute();
+        });
     },
     mountUmount: function(params) {
         Meta.jsonrpc.push({
@@ -261,7 +284,7 @@ site.mode.user.system_user = Meta( site.obj.mode ).extend({
 
                 return false;
             }
-        }).execute();
+        });
     },
     mountRemount: function(params) {
         Meta.jsonrpc.push({
@@ -284,6 +307,6 @@ site.mode.user.system_user = Meta( site.obj.mode ).extend({
 
                 return false;
             }
-        }).execute();
+        });
     }
 });

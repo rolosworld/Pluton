@@ -85,6 +85,15 @@ sub mountumount : Remote {
     return $self->getObject( 'SystemUser', c => $c )->mount_umount($params);
 }
 
+=head2 mountstat
+
+=cut
+
+sub mountstat : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->mount_stat($params);
+}
+
 =head2 list_mounts
 
 =cut

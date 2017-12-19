@@ -25,6 +25,12 @@
   {{#type.swiftks}}{{> system_user-mount-swiftks-fields_view}}{{/type.swiftks}}
   {{#type.rackspace}}{{> system_user-mount-rackspace-fields_view}}{{/type.rackspace}}
   {{#type.local}}{{> system_user-mount-local-fields_view}}{{/type.local}}
+  <tr>
+    <td colspan="2">
+      <b>Status:</b>
+      <pre id="system_user-mount-status"></pre>
+    </td>
+  </tr>
 </table>
 
 <a href="#mode=system_user;method=mount-edit;mid={{id}};user={{system_user}}" class="btn" style="text-transform:none;">Edit</a>

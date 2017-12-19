@@ -190,6 +190,24 @@ sub save_authinfo2 {
     return $output;
 }
 
+sub stat {
+    my ($self) = @_;
+    my $c = $self->c;
+    my $mount = $self->mount;
+    my $suser = $mount->get_column('system_user');
+    my $path = $self->path;
+
+    my $output .= $self->run({user => $suser, command => "s3qlstat $path"});
+    my @output = split("\n", $output);
+    if (scalar @output < 4) {
+        return 'Not mounted';
+    }
+    shift @output;
+    shift @output;
+
+    return join("\n", @output);
+}
+
 no Moose;
 
 =head1 NAME

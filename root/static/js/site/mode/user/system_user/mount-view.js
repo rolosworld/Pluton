@@ -1,6 +1,10 @@
 site.mode.user.system_user.methods['mount-view'] = Meta( site.obj.method ).extend({
     mount: null,
     preDrawUI: function() {
+        var queue = Meta.queue.$(function() {
+            cb(site.data);
+        });
+
         var mounts = site.data.system_users.mounts,
             mount,
             params = site.data.params;
@@ -34,27 +38,46 @@ site.mode.user.system_user.methods['mount-view'] = Meta( site.obj.method ).exten
 
         $container.select('#system_user-mount-generate_authinfo2').on('click', function() {
             site.mode.user.system_user.mountAuthinfo2( params );
+            Meta.jsonrpc.execute();
             return false;
         });
 
         $container.select('#system_user-mount-generate_mkfs').on('click', function() {
             site.mode.user.system_user.mountMkfs( params );
+            site.mode.user.system_user.getMountStatus( params.user, params.mid, function(result){
+                $container.select('#system_user-mount-status').text( result );
+            });
+            Meta.jsonrpc.execute();
             return false;
         });
 
         $container.select('#system_user-mount-generate_remount').on('click', function() {
             site.mode.user.system_user.mountRemount( params );
+            site.mode.user.system_user.getMountStatus( params.user, params.mid, function(result){
+                $container.select('#system_user-mount-status').text( result );
+            });
+            Meta.jsonrpc.execute();
             return false;
         });
 
         $container.select('#system_user-mount-generate_umount').on('click', function() {
             site.mode.user.system_user.mountUmount( params );
+            site.mode.user.system_user.getMountStatus( params.user, params.mid, function(result){
+                $container.select('#system_user-mount-status').text( result );
+            });
+            Meta.jsonrpc.execute();
             return false;
         });
 
         $container.select('#system_user-mount-generate_rmmount').on('click', function() {
             site.mode.user.system_user.rmMount( params );
+            Meta.jsonrpc.execute();
             return false;
         });
+
+        site.mode.user.system_user.getMountStatus( params.user, params.mid, function(result){
+            $container.select('#system_user-mount-status').text( result );
+        });
+        Meta.jsonrpc.execute();
     }
 });

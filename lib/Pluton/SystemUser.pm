@@ -429,6 +429,29 @@ sub mount_umount {
     return $mount->umount;
 }
 
+sub mount_stat {
+    my ($self, $params) = @_;
+    my $c = $self->c;
+
+    my $exist = $c->model('DB::Mount')->search({
+        creator => $c->user->id,
+        id => $$params{id},
+    })->next;
+
+    if ( !$exist ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/id',
+                    message => 'Mount does not exist',
+                }
+            ]);
+
+        return;
+    }
+
+    my $mount = $self->getObject('Object::Mount', c => $c, mount => $exist);
+    return $mount->stat;
+}
+
 no Moose;
 
 =head1 NAME
