@@ -160,7 +160,10 @@ sub generate_authinfo2 {
     }
 
     if ( $mount->backend_password ) {
-        $authinfo2 .= 'backend-password: ' . $mount->backend_password . "\n";
+        my $backend_password = $mount->backend_password;
+        $backend_password =~ s/\r//g;
+        $backend_password =~ s/\n/\\n/g;
+        $authinfo2 .= 'backend-password: ' . $backend_password . "\n";
     }
 
     $authinfo2 .= 'fs-passphrase: ' . $mount->fs_passphrase . "\n\n";
