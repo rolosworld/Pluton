@@ -133,12 +133,14 @@ sub crontab {
 
     # Create backup script
     $output .= $self->run({user => $user, command => "echo '#!/bin/bash' >  $script_file"});
+    $output .= $self->run({user => $user, command => "echo 'echo \"------------------------------------------\" &>> $log_file' >>  $script_file"});
+    $output .= $self->run({user => $user, command => "echo 'date &>> $log_file' >>  $script_file"});
     $output .= $self->run({user => $user, command => "echo 'STAMP=`date +\"%Y-%m-%d_%H:%M:%S\"`' >>  $script_file"});
 
     # Manage previous backups
     if ($keep) {
-        $output .= $self->run({user => $user, command => "echo 's3qlcp $current_path $previous_path/'\${STAMP}' &>> $log_file' >>  $script_file"});
-        $output .= $self->run({user => $user, command => "echo 's3qllock $previous_path/'\${STAMP}' &>> $log_file' >>  $script_file"});
+        $output .= $self->run({user => $user, command => "echo 's3qlcp $current_path $previous_path/\"\${STAMP}\" &>> $log_file' >>  $script_file"});
+        $output .= $self->run({user => $user, command => "echo 's3qllock $previous_path/\"\${STAMP}\" &>> $log_file' >>  $script_file"});
         $output .= $self->run({user => $user, command => "echo 'KEEP=$keep' >>  $script_file"});
         $output .= $self->run({user => $user, command => "echo 'CURR=`find $previous_path -maxdepth 1 -type d | wc -l`' >>  $script_file"});
         $output .= $self->run({user => $user, command => "echo 'DELTA=\$((CURR-KEEP))' >>  $script_file"});

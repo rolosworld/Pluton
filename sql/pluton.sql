@@ -64,8 +64,8 @@ CREATE TABLE mounts (
     "name" character varying(32) NOT NULL,
     "storage_url" character varying(255) NOT NULL,
     "backend_login" character varying(255) DEFAULT NULL,
-    "backend_password" character varying(255) DEFAULT NULL,
-    "fs_passphrase" character varying(255) NOT NULL,
+    "backend_password" character varying(2000) DEFAULT NULL,
+    "fs_passphrase" character varying(2000) NOT NULL,
     UNIQUE( "creator", "name" )
 );
 CREATE TRIGGER update_mounts_updated BEFORE UPDATE

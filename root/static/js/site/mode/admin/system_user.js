@@ -120,7 +120,7 @@ site.mode.admin.system_user = Meta( site.obj.mode ).extend({
         var type = $form.select('select[name="type"]').val();
         var storage_url = $form.select('input[name="storage-url"]').val();
         var backend_login = $form.select('input[name="backend-login"]').val();
-        var backend_password = $form.select('input[name="backend-password"]').val();
+        var backend_password = $form.select('input[name="backend-password"],textarea[name="backend-password"]').val();
         var fs_passphrase = $form.select('input[name="fs-passphrase"]').val();
 
         var params = {

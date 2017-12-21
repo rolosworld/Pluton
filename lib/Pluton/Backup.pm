@@ -238,7 +238,7 @@ our $__backup_restore_schema = {
     required   => [qw(backup destination)],
     properties => {
         backup => { type => 'integer', minimum => 1, maximum => 10000 },
-        source => { type => 'string', pattern => '^[\-\w]+$', minLength => 19, maxLength => 19, },
+        source => { type => 'string', pattern => '^[\-\w\:]+$', minLength => 19, maxLength => 19, },
         destination => { type => 'string', pattern => '^[ \/\-\w]+$', minLength => 2, maxLength => 255 },
     }
 };
@@ -297,12 +297,12 @@ sub restore {
     # No date means we use the current backup
     my $src = "current/$bid";
     if ($source) {
-        $src = "previous/$bid/$source";
+        $src = "previous/$bid/\"$source\"";
     }
 
     my $backup_dest = $self->getObject('Object::Mount', c => $c, mount => $backup->mount)->path;
 
-    my $output = $self->run({user => $backup->system_user->id, command => "rsync -avh $backup_dest/$src ~/'$dest'  &>> ~/.pluton/logs/$bid.log"});
+    my $output = $self->run({user => $backup->system_user->id, command => "rsync -avh $backup_dest/$src ~/\"$dest\"  &>> ~/.pluton/logs/$bid.log"});
     my @_output = split("\n", $output);
     return \@_output;
 }

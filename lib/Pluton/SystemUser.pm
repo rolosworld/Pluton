@@ -213,8 +213,8 @@ our $__system_user_mounts_schema = {
         name => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 255 },
         storage_url => { type => 'string', format => 'uri', maxLength => 255 },
         backend_login => { type => 'string', pattern => '^[\w\:]+$', minLength => 1, maxLength => 255 },
-        backend_password => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 255 },
-        fs_passphrase => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 255 },
+        backend_password => { type => 'string', pattern => '^[a-zA-Z0-9+/=@\\n\\r\\- ]+$', minLength => 1, maxLength => 2000 },
+        fs_passphrase => { type => 'string', pattern => '^[a-zA-Z0-9]+$', minLength => 1, maxLength => 2000 },
     }
 };
 
