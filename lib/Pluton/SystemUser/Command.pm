@@ -82,6 +82,7 @@ sub run {
 sub raw {
     my ($self, $params) = @_;
     my $c = $self->c;
+    my $uid = $c->user->id;
 
     my $exp = Expect->new;
     $exp->raw_pty(1);
@@ -103,7 +104,14 @@ sub raw {
 
     my $timeout = 30;
     $exp->log_file(sub {
-        $output .= shift;
+        my $stdout = shift;
+        $output .= $stdout;
+        Main::WebSocket::Users::sendTo($c, [$uid], {
+            type => 'command-stdout',
+            data => {
+                content => $stdout
+            }
+        });
     });
     $exp->expect($timeout,
                  [

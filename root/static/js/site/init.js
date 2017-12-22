@@ -13,7 +13,8 @@ site.init = function () {
 site.getDoms = function() {
     site.doms = {
         left: site.$.select('div.pluton-left'),
-        middle: site.$.select('div.pluton-middle'),
+        middle: site.$.select('div.pluton-middle_content'),
+        console: site.$.select('pre.pluton-middle_console'),
         right: site.$.select('div.pluton-right'),
     };
 };

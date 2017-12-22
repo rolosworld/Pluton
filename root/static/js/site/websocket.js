@@ -94,6 +94,8 @@ site.websocket.on('json', function(json){
             });
             delete me.callbacks[json.id];
         }
+    } else if (json.type == 'command-stdout') {
+        site.doms.console.text(site.doms.console.text()+json.data.content);
     } else if (json.type == 'system') {
         console.log('SYSTEM: ' + json.data);
     }

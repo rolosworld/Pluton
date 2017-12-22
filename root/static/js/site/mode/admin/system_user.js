@@ -202,8 +202,6 @@ site.mode.admin.system_user = Meta( site.obj.mode ).extend({
                 }
 
                 if (v.result) {
-                    var $log = Meta.dom.$().select('#system_user-mount_log');
-                    $log.text(v.result);
                     return true;
                 }
 
@@ -225,8 +223,6 @@ site.mode.admin.system_user = Meta( site.obj.mode ).extend({
                 }
 
                 if (v.result) {
-                    var $log = Meta.dom.$().select('#system_user-mount_log');
-                    $log.text(v.result);
                     return true;
                 }
 
@@ -272,8 +268,6 @@ site.mode.admin.system_user = Meta( site.obj.mode ).extend({
                 }
 
                 if (v.result) {
-                    var $log = Meta.dom.$().select('#system_user-mount_log');
-                    $log.text(v.result);
                     return true;
                 }
 
@@ -295,8 +289,6 @@ site.mode.admin.system_user = Meta( site.obj.mode ).extend({
                 }
 
                 if (v.result) {
-                    var $log = Meta.dom.$().select('#system_user-mount_log');
-                    $log.text(v.result);
                     return true;
                 }
 
