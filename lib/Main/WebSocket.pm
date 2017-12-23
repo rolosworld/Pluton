@@ -36,9 +36,30 @@ sub __on_error {
     };
 }
 
+sub session_expired {
+    my ($self) = @_;
+    my $c = $self->c;
+
+    if ($c->user_exists && $c->session_expires < time()) {
+        $self->destroy;
+        $self->{queue} = [];
+        $c->logout;
+        $c->delete_session("session expired");
+        return 1;
+    }
+
+    $c->reset_session_expires;
+    return 0;
+}
+
 sub __on_read {
     my ($self) = @_;
     return sub {
+        # Close connection if session expired
+        if ($self->session_expired) {
+            return;
+        }
+
         $self->{lock} = 1;
         my $hs = $self->{handshake};
         my $frame = $hs->build_frame;
@@ -86,6 +107,10 @@ sub handshake {
         on_error => $self->__on_error
     );
 
+    if ($self->session_expired) {
+        return;
+    }
+
     $hs->parse( $hd->fh );
 
     $hd->push_write( $hs->to_string );
@@ -114,7 +139,7 @@ sub processQueue {
 
 sub send {
     my ( $self, $args ) = @_;
-    if ($self->{lock}) {
+    if (!$args->{force} && $self->{lock}) {
         if ( ! defined $self->{queue} ) {
             $self->{queue} = [];
         }
@@ -129,8 +154,19 @@ sub send {
     $self->{handle}->push_write($message);
 }
 
+sub close {
+    my ( $self, $args ) = @_;
+    $self->{lock} = 0;
+    $self->{queue} = [];
+
+    my $message
+        = $self->{handshake}->build_frame( type => 'close' )->to_bytes;
+    $self->{handle}->push_write($message);
+}
+
 sub destroy {
     my ($self) = @_;
+    $self->close;
     $self->c->log->info('WebSocket destroyed');
     $self->{handle}->destroy;
 }

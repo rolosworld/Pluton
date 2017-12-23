@@ -73,6 +73,7 @@ sub run {
         password => $pass_decrypted,
         command  => $$params{command},
         fs_passphrase => $$params{fs_passphrase},
+        response_type => $$params{response_type},
     };
 
     my $output = $self->raw($run);
@@ -82,7 +83,10 @@ sub run {
 sub raw {
     my ($self, $params) = @_;
     my $c = $self->c;
-    my $uid = $c->user->id;
+    my $uid = 0;
+    if ( $c->user_exists ) {
+        $uid = $c->user->id;
+    }
 
     my $exp = Expect->new;
     $exp->raw_pty(1);
@@ -92,6 +96,7 @@ sub raw {
     my $system_user = $$params{username};
     my $system_pass = $$params{password};
     my $fs_passphrase = $$params{fs_passphrase};
+    my $response_type = $$params{response_type};
 
     my @parameters = ('su', '-c', $command, '-', $system_user);
 
@@ -106,12 +111,15 @@ sub raw {
     $exp->log_file(sub {
         my $stdout = shift;
         $output .= $stdout;
-        Main::WebSocket::Users::sendTo($c, [$uid], {
-            type => 'command-stdout',
-            data => {
-                content => $stdout
-            }
-        });
+        if ($uid) {
+            Main::WebSocket::Users::sendTo($c, [$uid], {
+                type => $response_type || 'command-stdout',
+                force => 1,
+                data => {
+                    content => $stdout
+                }
+            });
+        }
     });
     $exp->expect($timeout,
                  [
@@ -132,6 +140,32 @@ sub raw {
     $exp->soft_close();
 
     return $output;
+}
+
+our $jobs = 0;
+sub forkit {
+    my ($self, $params) = @_;
+    my $c = $self->c;
+
+    if ($jobs >= $c->config->{max_jobs}) {
+        $c->log->debug("MAX JOBS REACHED: $jobs");
+        return 0;
+    }
+
+    $c->log->debug("PID $$");
+    my $pid = fork();
+    $jobs++;
+
+    if (!$pid) {
+        $self->run( $params );
+        $jobs--;
+        $c->log->debug("JOBS( $jobs ) PID_DONE( $pid )");
+    }
+    else {
+        $c->log->debug("JOBS( $jobs ) PID $$ ($pid)");
+    }
+
+    return 1;
 }
 
 no Moose;

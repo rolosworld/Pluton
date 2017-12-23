@@ -44,6 +44,14 @@ site.mode.user.system_user.methods['mount-edit'] = Meta( site.obj.method ).exten
                 site.mode.user.system_user.loadFolders();
                 Meta.jsonrpc.execute();
             }
+
+            if ( type == 'gs' ) {
+                $container.select('#get_google_key').on('click', function() {
+                    site.mode.user.system_user.getGoogleKey( params.user );
+                    Meta.jsonrpc.execute();
+                    return false;
+                });
+            }
         });
 
         $form.on('submit', function() {
@@ -103,6 +111,14 @@ site.mode.user.system_user.methods['mount-edit'] = Meta( site.obj.method ).exten
             }
             Meta.jsonrpc.execute();
             queue.start();
+        }
+
+        if ( mount.type.gs ) {
+            $container.select('#get_google_key').on('click', function() {
+                site.mode.user.system_user.getGoogleKey( params.user );
+                Meta.jsonrpc.execute();
+                return false;
+            });
         }
     }
 });

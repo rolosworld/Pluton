@@ -213,8 +213,8 @@ our $__system_user_mounts_schema = {
         name => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 255 },
         storage_url => { type => 'string', format => 'uri', maxLength => 255 },
         backend_login => { type => 'string', pattern => '^[\w\:]+$', minLength => 1, maxLength => 255 },
-        backend_password => { type => 'string', pattern => '^[a-zA-Z0-9+/=@\\n\\r\\- ]+$', minLength => 1, maxLength => 2000 },
-        fs_passphrase => { type => 'string', pattern => '^[a-zA-Z0-9]+$', minLength => 1, maxLength => 2000 },
+        backend_password => { type => 'string', pattern => '^[\w+/=@\- ]+$', minLength => 1, maxLength => 255 },
+        fs_passphrase => { type => 'string', pattern => '^[\w]+$', minLength => 1, maxLength => 255 },
     }
 };
 
@@ -450,6 +450,34 @@ sub mount_stat {
 
     my $mount = $self->getObject('Object::Mount', c => $c, mount => $exist);
     return $mount->stat;
+}
+
+sub google_key {
+    my ($self, $params) = @_;
+    my $c = $self->c;
+
+    my $exist = $c->model('DB::SystemUser')->search({
+        owner => $c->user->id,
+        id => $$params{system_user},
+    })->next;
+
+    if ( !$exist ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/system_user',
+                    message => 'User does not exist in your system users list',
+                }
+            ]);
+
+        return;
+    }
+
+    my $result = $self->forkit({
+        response_type => 'google-key',
+        user => $$params{system_user},
+        command => "s3ql_oauth_client",
+    });
+
+    return $result;
 }
 
 no Moose;

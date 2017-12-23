@@ -115,6 +115,19 @@ sub folders : Remote {
     return $self->getObject( 'SystemUser', c => $c )->folders( $params );
 }
 
+=head2 googlekey
+
+=cut
+
+sub googlekey : Remote {
+    my ( $self, $c, $params ) = @_;
+    my $system_user = $c->model('DB::SystemUser')->search({
+        owner => $c->user->id,
+    })->next;
+    $$params{system_user} = $system_user->id;
+    return $self->getObject( 'SystemUser', c => $c )->google_key( $params );
+}
+
 =encoding utf8
 
 =head1 AUTHOR

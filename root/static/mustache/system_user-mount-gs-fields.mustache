@@ -2,19 +2,17 @@
   <label>Bucket Name:</label>
   <!-- gs://<bucketname>/<prefix> -->
   <input type="hidden" name="storage-url" value="{{storage_url}}"/>
+  <input type="hidden" name="backend-login" value="oauth2"/>
+
   <input type="text" name="bucketname" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{bucketname}}"/>
   <label>Prefix:</label>
   <input type="text" name="prefix" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{prefix}}"/>
 </div>
 
 <div>
-  <label>Access Key:</label>
-  <input type="text" name="backend-login" placeholder="(Max 32, Alphanumeric)" autocomplete="off" value="{{backend_login}}"/>
-</div>
-
-<div>
-  <label>Access Secret:</label>
-  <textarea name="backend-password">{{backend_password}}</textarea>
+  <label>Access Secret: <a href="https://www.google.com/device" id="get_google_key" target="_blank">Get Key</a></label>
+  <div id="get_google_key_code"></div>
+  <input type="text" name="backend-password" value="{{backend_password}}" id="get_google_key_token"/>
 </div>
 
 <div>

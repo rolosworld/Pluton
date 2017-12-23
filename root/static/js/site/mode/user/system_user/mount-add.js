@@ -13,10 +13,18 @@ site.mode.user.system_user.methods['mount-add'] = Meta( site.obj.method ).extend
             var type = $type.select('option:checked').val();
             $container.inner(site.mustache.render('system_user-mount-'+type+'-fields', {}));
 
-            if (type == 'local') {
+            if ( type == 'local' ) {
                 // Folders loaders
                 site.mode.user.system_user.loadFolders();
                 Meta.jsonrpc.execute();
+            }
+
+            if ( type == 'gs' ) {
+                $container.select('#get_google_key').on('click', function() {
+                    site.mode.user.system_user.getGoogleKey( site.data.params.user );
+                    Meta.jsonrpc.execute();
+                    return false;
+                });
             }
         });
 

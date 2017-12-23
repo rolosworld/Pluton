@@ -8,6 +8,9 @@ site.websocket = Meta(Meta.websocket).extend({
             data: event && event.data ? event.data : '',
         };
         console.log('site.websocket[' + event.type + ']: ' + event.data);
+        if (event.type == 'error' || event.type == 'close') {
+            location.href = '/';
+        }
     },
     reconnect: function() {
         var me = this;
@@ -96,6 +99,17 @@ site.websocket.on('json', function(json){
         }
     } else if (json.type == 'command-stdout') {
         site.doms.console.text(site.doms.console.text()+json.data.content);
+    } else if (json.type == 'google-key') {
+        if (json.data.content.search('code') > -1) {
+            site.$.select('#get_google_key_code').inner(json.data.content + ' <a href="https://www.google.com/device" target="_blank">Go to google.com/devices</a>');
+        }
+        else {
+            if (json.data.content.search('Success') > -1) {
+                site.$.select('#get_google_key_code').inner('');
+                var parts = json.data.content.split(' ');
+                site.$.select('#get_google_key_token').val(Meta.string.$(parts[parts.length - 1]).trim().get());
+            }
+        }
     } else if (json.type == 'system') {
         console.log('SYSTEM: ' + json.data);
     }

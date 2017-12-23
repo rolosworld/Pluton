@@ -70,6 +70,27 @@ site.mode.admin.system_user = Meta( site.obj.mode ).extend({
             }
         });
     },
+    getGoogleKey: function(suser, cb) {
+        Meta.jsonrpc.push({
+            method:'admin.systemuser.googlekey',
+            params:{system_user: Meta.string.$(suser).toInt()},
+            callback:function(v){
+                var err = v.error;
+                if (err) {
+                    site.log.errors(err);
+                    return false;
+                }
+
+                if (v.result) {
+                    //cb(v.result);
+                    return true;
+                }
+
+                alert('Google Key request can\'t run at this time. Try again later.');
+                return false;
+            }
+        });
+    },
     getSystemUsers: function(cb) {
         Meta.jsonrpc.push({
             method:'admin.systemuser.list',
@@ -120,7 +141,7 @@ site.mode.admin.system_user = Meta( site.obj.mode ).extend({
         var type = $form.select('select[name="type"]').val();
         var storage_url = $form.select('input[name="storage-url"]').val();
         var backend_login = $form.select('input[name="backend-login"]').val();
-        var backend_password = $form.select('input[name="backend-password"],textarea[name="backend-password"]').val();
+        var backend_password = $form.select('input[name="backend-password"]').val();
         var fs_passphrase = $form.select('input[name="fs-passphrase"]').val();
 
         var params = {

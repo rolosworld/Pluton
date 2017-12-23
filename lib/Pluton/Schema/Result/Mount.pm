@@ -95,13 +95,13 @@ __PACKAGE__->table("mounts");
   data_type: 'varchar'
   default_value: null
   is_nullable: 1
-  size: 2000
+  size: 255
 
 =head2 fs_passphrase
 
   data_type: 'varchar'
   is_nullable: 0
-  size: 2000
+  size: 255
 
 =cut
 
@@ -147,10 +147,10 @@ __PACKAGE__->add_columns(
     data_type => "varchar",
     default_value => \"null",
     is_nullable => 1,
-    size => 2000,
+    size => 255,
   },
   "fs_passphrase",
-  { data_type => "varchar", is_nullable => 0, size => 2000 },
+  { data_type => "varchar", is_nullable => 0, size => 255 },
 );
 
 =head1 PRIMARY KEY
@@ -229,8 +229,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-12-20 21:29:28
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:D4CiUghRgZWjIGi9rcAuNQ
+# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-12-22 18:59:11
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OzLKBXiSvAKjK13BxqhWxg
 
 sub TO_JSON {
     my ($self) = @_;

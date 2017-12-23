@@ -6,6 +6,7 @@ site.login = {
       $form.on('submit', function(){
           var username = $form.select('input[name="email"]').val();
           var password = $form.select('input[name="password"]').val();
+          var remember = $form.select('input[name="remember"]:checked').get(0) ? 1 : 0;
           if (!username) {
               return false;
           }
@@ -14,7 +15,8 @@ site.login = {
               method:'account.login',
               params:{
                   username:username,
-                  password:password
+                  password:password,
+                  remember:remember
               },
               callback:function(v){
                   var err = v.error;

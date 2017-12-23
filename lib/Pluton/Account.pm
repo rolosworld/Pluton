@@ -12,6 +12,7 @@ extends 'Main::Account';
 our $__email_login_schema = {
     required   => [qw(username password)],
     properties => {
+        remember => { type => 'integer', minimum => 0, maximum => 1 },
         username => { type => 'string', format => 'email', minLength => 5, maxLength => 255 },
         password => { type => 'string', minLength => 8, maxLength => 255 },
     }
@@ -20,6 +21,7 @@ our $__email_login_schema = {
 our $__login_schema = {
     required   => [qw(username password)],
     properties => {
+        remember => { type => 'integer', minimum => 0, maximum => 1 },
         username => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 32 },
         password => { type => 'string', pattern => '^[^\n^\r.]+$', minLength => 1, maxLength => 70 },
     }
@@ -83,6 +85,11 @@ sub email_login {
 
         # Validate password
         if ($self->__validate_email_password($user, $params)) {
+
+            if ($$params{remember}) {
+                $self->remember;
+            }
+
             return $c->user->obj;
         }
 
@@ -222,8 +229,21 @@ sub login {
         });
     }
 
+    if ($$params{remember}) {
+        $self->remember;
+    }
+
     $self->__login($user);
     return $c->user->obj;
+}
+
+sub remember {
+    my ($self) = @_;
+    my $c = $self->c;
+
+    # Expire session in 1 year if remember checkbox is selected
+    $c->change_session_expires( 31536000 );
+    $c->reset_session_expires;
 }
 
 no Moose;

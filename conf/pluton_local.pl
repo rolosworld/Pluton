@@ -3,9 +3,11 @@
     using_frontend_proxy     => 1,
     uploadtmp                => Pluton->path_to('data/uploads')->stringify,
     uploadfiles              => Pluton->path_to('data/files')->stringify,
-    max_user_tags            => 10,
+    max_jobs                 => 10,
 
     'Plugin::Session' => {
+        #expires => 5, # 5 secs debug
+        expires => 1800, # 30 minutes
         storage => Pluton->path_to('data/sessions')->stringify,
     },
 

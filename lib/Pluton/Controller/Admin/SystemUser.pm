@@ -121,6 +121,15 @@ sub folders : Remote {
     return $self->getObject( 'SystemUser', c => $c )->folders( $params );
 }
 
+=head2 googlekey
+
+=cut
+
+sub googlekey : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->google_key( $params );
+}
+
 =encoding utf8
 
 =head1 AUTHOR
