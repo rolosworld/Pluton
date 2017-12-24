@@ -25,7 +25,7 @@ site.websocket = Meta(Meta.websocket).extend({
 
 site.websocket.on('connect',function(){
     var me = this;
-    me.log('connected');
+    me.log( {type:'connected', data:''} );
     me.on('open', site.websocket.log).
         on('message', site.websocket.log).
         on('error', site.websocket.log).

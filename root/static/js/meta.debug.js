@@ -4842,9 +4842,7 @@ Meta.websocket=Meta(Meta.websocketevent).extend({
   close: function() {
     var me = this;
     var a = me.get();
-    if (a) {
-        a.close();
-    }
+    a.close();
     me.fire('close');
     return me;
   },
@@ -4859,10 +4857,8 @@ Meta.websocket=Meta(Meta.websocketevent).extend({
     var me = this;
     var j=JSON.stringify(d);
     var a = me.get();
-    if (a) {
-        a.send(j);
-    }
-    me.fire('send',j);
+    a.send(j);
+    me.fire('send',d);
     return me;
   }
 });
