@@ -21,14 +21,6 @@ Main::Events::add(
         };
 
         $ws->send($response);
-        # TEST RESPONSE TO ALL HANDSHAKES
-        # my $websockets = \%Main::WebSocket::Globals::WebSockets;
-        # foreach my $websocket ( keys %$websockets ) {
-        #     $Main::WebSocket::Globals::WebSockets{$websocket}->send(
-        #     {   type => 'system',
-        #         data  => 'JSONRPCv2 DONE',
-        #     });
-        # }
     }
 );
 

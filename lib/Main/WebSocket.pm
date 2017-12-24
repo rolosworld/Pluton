@@ -111,11 +111,12 @@ sub handshake {
         return;
     }
 
+    # Store WebSocket to use it in sendToMe
+    $c->user->obj->{websocket} = $self;
+
     $hs->parse( $hd->fh );
 
     $hd->push_write( $hs->to_string );
-
-# $hd->push_write( $hs->build_frame( buffer => "Echo Initiated" )->to_bytes );
 
     # Fire event websocket_handshake
     $self->{lock} = 1;

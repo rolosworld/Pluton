@@ -70,6 +70,11 @@ sub sendTo {
     })->delete;
 }
 
+sub sendToMe {
+    my ($c, $args) = @_;
+    $c->user->obj->{websocket}->send($args);
+}
+
 sub sendToPusher {
     my ($c, $users, $args) = @_;
 

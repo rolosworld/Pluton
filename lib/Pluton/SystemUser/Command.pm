@@ -6,6 +6,7 @@ use Main::JSON::Validator;
 use Crypt::CBC;
 use Expect;
 use MIME::Base64 ();
+use POSIX ":sys_wait_h";
 
 extends 'Main::Module';
 
@@ -83,10 +84,6 @@ sub run {
 sub raw {
     my ($self, $params) = @_;
     my $c = $self->c;
-    my $uid = 0;
-    if ( $c->user_exists ) {
-        $uid = $c->user->id;
-    }
 
     my $exp = Expect->new;
     $exp->raw_pty(1);
@@ -111,8 +108,8 @@ sub raw {
     $exp->log_file(sub {
         my $stdout = shift;
         $output .= $stdout;
-        if ($uid) {
-            Main::WebSocket::Users::sendTo($c, [$uid], {
+        if ( $c->user_exists ) {
+            Main::WebSocket::Users::sendToMe($c, {
                 type => $response_type || 'command-stdout',
                 force => 1,
                 data => {
@@ -142,27 +139,42 @@ sub raw {
     return $output;
 }
 
-our $jobs = 0;
+our %jobs = ();
 sub forkit {
     my ($self, $params) = @_;
     my $c = $self->c;
 
-    if ($jobs >= $c->config->{max_jobs}) {
-        $c->log->debug("MAX JOBS REACHED: $jobs");
+    # Cleanup jobs done
+    my @_pids = keys %jobs;
+    foreach my $_pid ( @_pids ) {
+        if ( waitpid( $_pid, WNOHANG ) < 0) {
+            delete $jobs{$_pid};
+        }
+    }
+
+    # Verify pending jobs is less than permitted
+    my $pending = scalar( keys %jobs );
+    if ( $pending >= $c->config->{max_jobs} ) {
+        $c->log->debug("MAX JOBS REACHED: $pending");
         return 0;
     }
 
     $c->log->debug("PID $$");
     my $pid = fork();
-    $jobs++;
 
-    if (!$pid) {
-        $self->run( $params );
-        $jobs--;
-        $c->log->debug("JOBS( $jobs ) PID_DONE( $pid )");
+    if ($pid) {
+        # Parent process
+        $jobs{$pid} = 1;
+        $pending++;
+        $c->log->debug("PENDING_JOBS( $pending ) PID $$ ($pid)");
     }
     else {
-        $c->log->debug("JOBS( $jobs ) PID $$ ($pid)");
+        # Child process
+        $self->run( $params );
+        $c->log->debug("PID_DONE( $$ )");
+
+        # Terminate the forked process
+        kill 'TERM', $$;
     }
 
     return 1;
