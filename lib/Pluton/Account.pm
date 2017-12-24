@@ -131,8 +131,7 @@ sub __validate_password {
     }
 
     my @_output = split("\n", $output);
-
-    if (scalar( @_output ) < 2 && $_output[2] ne $$params{username}) {
+    if (scalar( @_output ) < 3 || $_output[2] ne $$params{username}) {
         return 0;
     }
 
