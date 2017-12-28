@@ -85,6 +85,7 @@ site.mode.user.backup.methods.edit = Meta( site.obj.method ).extend({
         var $system_user = Meta.dom.$().select('select[name="system_user"]');
         site.mode.user.backup.loadFolders( backup.system_user.id );
 
+        // Mounts
         queue.increase();
         site.mode.user.system_user.getMounts( backup.system_user.id, function(result){
             site.data.system_users.mounts = result;
@@ -129,5 +130,12 @@ site.mode.user.backup.methods.edit = Meta( site.obj.method ).extend({
         });
         Meta.jsonrpc.execute();
         queue.start();
+
+
+        $container.select('#backup-now').on('click', function() {
+            site.mode.user.backup.backupNow( backup.id );
+            Meta.jsonrpc.execute();
+            return false;
+        });
     }
 });

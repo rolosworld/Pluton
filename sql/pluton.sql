@@ -43,11 +43,11 @@ CREATE TABLE schedules (
     updated timestamp NOT NULL DEFAULT current_timestamp,
     "creator" bigint NOT NULL REFERENCES users ON DELETE CASCADE,
     "name" character varying(255) NOT NULL,
-    "minute" smallint DEFAULT NULL,
-    "hour" smallint DEFAULT NULL,
-    "day_of_month" smallint DEFAULT NULL,
-    "month" smallint DEFAULT NULL,
-    "day_of_week" smallint DEFAULT NULL,
+    "minute" character varying(255) NOT NULL DEFAULT '*',
+    "hour" character varying(255) NOT NULL DEFAULT '*',
+    "day_of_month" character varying(255) NOT NULL DEFAULT '*',
+    "month" character varying(255) NOT NULL DEFAULT '*',
+    "day_of_week" character varying(255) NOT NULL DEFAULT '*',
     UNIQUE( "creator", "name" )
 );
 CREATE TRIGGER update_schedules_updated BEFORE UPDATE

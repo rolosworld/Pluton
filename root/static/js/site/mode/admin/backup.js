@@ -95,6 +95,26 @@ site.mode.admin.backup = Meta( site.obj.mode ).extend({
 
         return params;
     },
+    backupNow: function(backup, cb) {
+        Meta.jsonrpc.push({
+            method:'admin.backup.now',
+            params:{backup:backup},
+            callback:function(v){
+                var err = v.error;
+                if (err) {
+                    site.log.errors(err);
+                    return false;
+                }
+
+                if (v.result) {
+                    //cb(v.result);
+                    return true;
+                }
+
+                return false;
+            }
+        });
+    },
     getSources: function(backup, cb) {
         Meta.jsonrpc.push({
             method:'admin.backup.sources',

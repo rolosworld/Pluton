@@ -43,41 +43,14 @@ site.mode.user.schedule = Meta( site.obj.mode ).extend({
         });
     },
     getDomData: function($form) {
-        // Prepare data for the request
-        var s = Meta.string.$(),
-            id = $form.select('input[name="id"]').val(),
-            name = $form.select('input[name="name"]').val(),
-            minute = $form.select('input[name="minute"]').val(),
-            hour = $form.select('input[name="hour"]').val(),
-            day_of_month = $form.select('input[name="day_of_month"]').val(),
-            month = $form.select('select[name="month"]').val(),
-            day_of_week = $form.select('select[name="day_of_week"]').val(),
-            params = {name: name};
-
-        if (s.set(id).hasInt()) {
-            params.id = s.toInt();
-        }
-
-        if (s.set(minute).hasInt()) {
-            params.minute = s.toInt();
-        }
-
-        if (s.set(hour).hasInt()) {
-            params.hour = s.toInt();
-        }
-
-        if (s.set(day_of_month).hasInt()) {
-            params.day_of_month = s.toInt();
-        }
-
-        if (s.set(month).hasInt()) {
-            params.month = s.toInt();
-        }
-
-        if (s.set(day_of_week).hasInt()) {
-            params.day_of_week = s.toInt();
-        }
-
-        return params;
+        return {
+            id: Meta.string.$($form.select('input[name="id"]').val() || 0).toInt(),
+            name: $form.select('input[name="name"]').val(),
+            minute: $form.select('input[name="minute"]').val(),
+            hour: $form.select('input[name="hour"]').val(),
+            day_of_month: $form.select('input[name="day_of_month"]').val(),
+            month: $form.select('input[name="month"]').val(),
+            day_of_week: $form.select('input[name="day_of_week"]').val()
+        };
     }
 });

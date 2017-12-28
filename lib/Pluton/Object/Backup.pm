@@ -168,6 +168,16 @@ sub crontab {
     return $output;
 }
 
+sub now {
+    my ($self) = @_;
+    my $c = $self->c;
+    my $backup = $self->backup;
+    my $user = $backup->get_column('system_user');
+    my $script_file = $self->script_file;
+
+    return $self->run({user => $user, command => "$script_file"});
+}
+
 no Moose;
 
 =head1 NAME

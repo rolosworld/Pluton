@@ -65,3 +65,7 @@ footer.page-footer {
 .btn {
     margin: 4px;
 }
+
+table.schedule input, table.schedule th {
+    text-align: center;
+}

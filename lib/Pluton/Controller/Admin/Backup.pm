@@ -49,6 +49,15 @@ sub sources : Remote {
     return $self->getObject( 'Backup', c => $c )->sources($params);
 }
 
+=head2 now
+
+=cut
+
+sub now : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'Backup', c => $c )->now($params);
+}
+
 =encoding utf8
 
 =head1 AUTHOR

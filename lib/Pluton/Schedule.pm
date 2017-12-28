@@ -2,7 +2,7 @@ package Pluton::Schedule;
 use Modern::Perl;
 use Moose;
 use namespace::autoclean;
-use Main::JSON::Validator;
+use Pluton::JSON::Validator;
 
 extends 'Pluton::SystemUser::Command';
 
@@ -11,17 +11,17 @@ our $__schedule_schema = {
     properties => {
         id => { type => 'integer', minimum => 1, maximum => 10000 },
         name => { type => 'string', minLength => 1, maxLength => 80 },
-        minute => { type => 'integer', minimum => 0, maximum => 59 },
-        hour => { type => 'integer', minimum => 0, maximum => 23 },
-        day_of_month => { type => 'integer', minimum => 1, maximum => 31 },
-        month => { type => 'integer', minimum => 1, maximum => 12 },
-        day_of_week => { type => 'integer', minimum => 0, maximum => 6 },
+        minute => { type => 'string', format => 'cron_minute'},
+        hour => { type => 'string', format => 'cron_hour' },
+        day_of_month => { type => 'string', format => 'cron_day_of_month' },
+        month => { type => 'string', format => 'cron_month' },
+        day_of_week => { type => 'string', format => 'cron_day_of_week' },
     }
 };
 
 sub __validate_schedule {
     my ($self, $params) = @_;
-    my $validator = Main::JSON::Validator->new;
+    my $validator = Pluton::JSON::Validator->new;
     $validator->schema($__schedule_schema);
 
     return $validator->validate($params);
@@ -70,11 +70,11 @@ sub edit {
 
     my $values = {
         name => $$params{name},
-        minute => $$params{minute},
-        hour => $$params{hour},
-        day_of_month => $$params{day_of_month},
-        month => $$params{month},
-        day_of_week => $$params{day_of_week},
+        minute => $$params{minute} || '*',
+        hour => $$params{hour} || '*',
+        day_of_month => $$params{day_of_month} || '*',
+        month => $$params{month} || '*',
+        day_of_week => $$params{day_of_week} || '*',
     };
     $exist->update($values);
 
@@ -123,11 +123,11 @@ sub add {
     my $values = {
         creator => $c->user->id,
         name => $$params{name},
-        minute => $$params{minute},
-        hour => $$params{hour},
-        day_of_month => $$params{day_of_month},
-        month => $$params{month},
-        day_of_week => $$params{day_of_week},
+        minute => $$params{minute} || '*',
+        hour => $$params{hour} || '*',
+        day_of_month => $$params{day_of_month} || '*',
+        month => $$params{month} || '*',
+        day_of_week => $$params{day_of_week} || '*',
     };
     $c->model('DB::Schedule')->create($values);
 

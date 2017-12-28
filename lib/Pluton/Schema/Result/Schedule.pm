@@ -73,28 +73,38 @@ __PACKAGE__->table("schedules");
 
 =head2 minute
 
-  data_type: 'smallint'
-  is_nullable: 1
+  data_type: 'varchar'
+  default_value: '*'
+  is_nullable: 0
+  size: 255
 
 =head2 hour
 
-  data_type: 'smallint'
-  is_nullable: 1
+  data_type: 'varchar'
+  default_value: '*'
+  is_nullable: 0
+  size: 255
 
 =head2 day_of_month
 
-  data_type: 'smallint'
-  is_nullable: 1
+  data_type: 'varchar'
+  default_value: '*'
+  is_nullable: 0
+  size: 255
 
 =head2 month
 
-  data_type: 'smallint'
-  is_nullable: 1
+  data_type: 'varchar'
+  default_value: '*'
+  is_nullable: 0
+  size: 255
 
 =head2 day_of_week
 
-  data_type: 'smallint'
-  is_nullable: 1
+  data_type: 'varchar'
+  default_value: '*'
+  is_nullable: 0
+  size: 255
 
 =cut
 
@@ -125,15 +135,15 @@ __PACKAGE__->add_columns(
   "name",
   { data_type => "varchar", is_nullable => 0, size => 255 },
   "minute",
-  { data_type => "smallint", is_nullable => 1 },
+  { data_type => "varchar", default_value => "*", is_nullable => 0, size => 255 },
   "hour",
-  { data_type => "smallint", is_nullable => 1 },
+  { data_type => "varchar", default_value => "*", is_nullable => 0, size => 255 },
   "day_of_month",
-  { data_type => "smallint", is_nullable => 1 },
+  { data_type => "varchar", default_value => "*", is_nullable => 0, size => 255 },
   "month",
-  { data_type => "smallint", is_nullable => 1 },
+  { data_type => "varchar", default_value => "*", is_nullable => 0, size => 255 },
   "day_of_week",
-  { data_type => "smallint", is_nullable => 1 },
+  { data_type => "varchar", default_value => "*", is_nullable => 0, size => 255 },
 );
 
 =head1 PRIMARY KEY
@@ -197,25 +207,12 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-12-03 16:03:55
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:AZJUofBPKlXNvYbNvvsIbw
+# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-12-27 22:00:17
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:CWzAkI+bxvMdQtr5NFn5SA
 
 sub TO_JSON {
     my ($self) = @_;
     my $data = {$self->get_columns};
-
-    if (defined $$data{month}) {
-        $$data{month_selected} = {
-            $$data{month} => 1,
-        };
-    }
-
-    if (defined $$data{day_of_week}) {
-        $$data{day_of_week_selected} = {
-            $$data{day_of_week} => 1,
-        };
-    }
-
     return $data;
 }
 

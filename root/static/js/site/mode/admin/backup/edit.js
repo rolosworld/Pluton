@@ -130,5 +130,12 @@ site.mode.admin.backup.methods.edit = Meta( site.obj.method ).extend({
         });
         Meta.jsonrpc.execute();
         queue.start();
+
+
+        $container.select('#backup-now').on('click', function() {
+            site.mode.admin.backup.backupNow( backup.id );
+            Meta.jsonrpc.execute();
+            return false;
+        });
     }
 });

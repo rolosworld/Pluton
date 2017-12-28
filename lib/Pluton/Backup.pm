@@ -357,6 +357,33 @@ sub sources {
     return \@_output;
 }
 
+sub now {
+    my ($self, $params) = @_;
+    my $c = $self->c;
+
+    my @errors = $self->__validate_sources($params);
+    if ( $errors[0] ) {
+        $self->jsonrpc_error( \@errors );
+    }
+
+    my $backup = $c->model('DB::Backup')->search({
+        id => $$params{backup},
+    })->next;
+
+    if ( !$backup ) {
+        $self->jsonrpc_error(
+            [   {   path    => '/backup',
+                    message => 'Backup does not exist',
+                }
+            ]);
+
+        return;
+    }
+
+    my $output = $self->getObject('Object::Backup', c => $c, backup => $backup)->now;
+    return $output;
+}
+
 no Moose;
 
 =head1 NAME
