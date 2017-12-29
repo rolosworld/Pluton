@@ -56,11 +56,14 @@ site.switchMode = function(mode) {
     site.processHash('#mode=' + mode);
 };
 
-site.getMode = function(mode) {
+site.getRole = function() {
     if (site.data.user && site.data.user.roles.admin) {
-        return site.mode.admin[mode];
+        return 'admin';
     }
-    else {
-        return site.mode.user[mode];
-    }
+
+    return 'user';
+};
+
+site.getMode = function(mode) {
+    return site.mode[ site.getRole() ][mode];
 };

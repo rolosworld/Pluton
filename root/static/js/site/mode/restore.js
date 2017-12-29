@@ -1,13 +1,12 @@
-site.mode.restore = {
-    params:{},
-    getData: function(cb) {
-        var me = site.mode.restore;
+site.mode.restore = Meta( site.obj.mode ).extend({
+    getSiteData: function(cb) {
+        var me = site.getMode('restore');
         var queue = Meta.queue.$(function() {
             cb(site.data);
         });
 
         queue.increase();
-        site.mode.backup.getBackups(function(result){
+        site.getMode('backup').getBackups(function(result){
             if (!site.data.backups) {
                 site.data.backups = {};
             }
@@ -15,9 +14,9 @@ site.mode.restore = {
             queue.decrease();
         });
 
-        if (me.params.id) {
+        if (site.data.params.id) {
             queue.increase();
-            site.mode.backup.getSources(Meta.string.$(me.params.id).toInt(), function(result){
+            site.getMode('backup').getSources(Meta.string.$(site.data.params.id).toInt(), function(result){
                 if (!site.data.backups) {
                     site.data.backups = {};
                 }
@@ -30,7 +29,7 @@ site.mode.restore = {
             site.data.restores = {};
         }
 
-        var method = this.params.method;
+        var method = site.data.params.method;
         site.data.restores.method = {};
         if (method) {
             site.data.restores.method[method] = 1;
@@ -38,7 +37,7 @@ site.mode.restore = {
         site.data.restores.method_name = method;
 
         Meta.jsonrpc.execute();
-        queue.tryRun();
+        queue.start();
     },
     getBackup: function(id) {
         var backup;
@@ -50,36 +49,14 @@ site.mode.restore = {
         });
         return backup;
     },
-    init: function(params) {
-        var me = site.mode.restore;
-        site.emptyDoms();
-        me.params = params;
-
-        site.mode.home.initLeft();
-        site.log.init();
-
-        me.getData(function() {
-            me.initMiddle();
-
-            var methods = me.methods;
-            if (methods[params.method]) {
-                methods[params.method](params);
-            }
-
-            site.showDoms();
-        });
-    },
-    initMiddle: function() {
-        site.doms.middle.append(site.mustache.render('restore', site.data));
-    },
-    getParams: function($form) {
-        var me = site.mode.restore;
+    getDomData: function($form) {
+        var me = site.getMode('restore');
 
         // Prepare data for the request
         var s = Meta.string.$(),
             source = $form.select('select[name="source"]').val(),
             params = {
-                backup: Meta.string.$(me.params.id).toInt()
+                backup: Meta.string.$(site.data.params.id).toInt()
             };
 
 
@@ -96,8 +73,8 @@ site.mode.restore = {
         return params;
     },
     loadFolders: function(path) {
-        var me = site.mode.restore;
-        var backup = me.getBackup(me.params.id);
+        var me = site.getMode('restore');
+        var backup = me.getBackup(site.data.params.id);
         var user = backup.system_user.id;
         
         var params = {
@@ -106,7 +83,7 @@ site.mode.restore = {
         if (path) {
             params.path = path;
         }
-        site.mode.system_user.getFolders(params, function(folders){
+        site.getMode('system_user').getFolders(params, function(folders){
             Meta.each(folders, function(folder, i) {
                 var name = folder.split('/');
                 name = name[name.length - 1];
@@ -127,7 +104,7 @@ site.mode.restore = {
                 }));
                 $container.select('a').on('click', function() {
                     var $a = Meta.dom.$(this);
-                    site.mode.restore.loadFolders($a.data('path'));
+                    site.getMode('restore').loadFolders($a.data('path'));
                     Meta.jsonrpc.execute();
                     return false;
                 });
@@ -136,42 +113,5 @@ site.mode.restore = {
                 $container.inner('<div>Empty</div>');
             }
         });
-    },
-    methods: {
-        process: function() {
-            var me = site.mode.restore;
-            var $form = Meta.dom.$().select('#restore-form');
-            $form.on('submit', function(){
-                var params = me.getParams($form);
-                var backup = params.backup;
-                if (!backup) {
-                    return false;
-                }
-
-                Meta.jsonrpc.push({
-                    method:'backup.restore',
-                    params:params,
-                    callback:function(v){
-                        var err = v.error;
-                        if (err) {
-                            site.log.errors(err);
-                            return false;
-                        }
-
-                        if (v.result) {
-                            location.hash = '#mode=restore';
-                            return true;
-                        }
-
-                        return false;
-                    }
-                }).execute();
-                return false;
-            });
-
-            // Folders loaders
-            me.loadFolders();
-            Meta.jsonrpc.execute();
-        }
     }
-};
+});

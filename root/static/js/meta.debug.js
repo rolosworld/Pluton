@@ -1353,6 +1353,21 @@ Meta.string=Meta(Meta.core).extend({
 
 
   /**
+   <method name="isInt" type="bool">
+   <desc>Returns true if the string is a positive int, else returns false.</desc>
+   <test>
+   <![CDATA[
+     return Meta.string.$("123").isInt()===true;
+   ]]>
+   </test>
+   </method>
+  */
+  isInt:function()
+  {
+    return this.get().match(/^\d$/g) !== null;
+  },
+
+  /**
    <method name="hasInt" type="bool">
    <desc>Returns true if there's an int on the string, else returns false.</desc>
    <test>

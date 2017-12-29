@@ -1,14 +1,7 @@
-site.mode.home = {
-    init: function() {
-        site.emptyDoms();
-
-        site.mode.home.initLeft();
-        site.log.init();
-        site.showDoms();
-    },
+site.mode.home = Meta( site.obj.mode ).extend({
     initLeft: function() {
         if (site.data.user) {
-            site.doms.left.append(site.mustache.render('menu'));
+            site.doms.left.append(site.mustache.render('menu', site.data));
             site.logout.init();
 
         }
@@ -16,4 +9,4 @@ site.mode.home = {
             site.login.init();
         }
     }
-};
+});

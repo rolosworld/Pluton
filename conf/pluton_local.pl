@@ -63,6 +63,11 @@
                /static/js/site/mounts/rackspace.js
                /static/js/site/mounts/local.js
                /static/js/site/mounts/generic.js
+               /static/js/site/mode/home.js
+               /static/js/site/mode/system_user.js
+               /static/js/site/mode/schedule.js
+               /static/js/site/mode/backup.js
+               /static/js/site/mode/restore.js
                /static/js/site/mode/admin/home.js
                /static/js/site/mode/admin/home/main.js
                /static/js/site/mode/admin/system_user.js
