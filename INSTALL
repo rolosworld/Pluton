@@ -1,0 +1,85 @@
+INSTALLATION INSTRUCTIONS:
+
+Login into the user that will run Pluton:
+
+Install Perlbrew in the user:
+\wget -O - https://install.perlbrew.pl | bash
+
+Set default parameters for the user:
+echo "source ~/perl5/perlbrew/etc/bashrc" >> ~/.bash_profile
+echo "export PERL_MM_USE_DEFAULT=1" >> ~/.bash_profile
+
+
+Logout + Login to reset the shell so the default parameters take effect.
+
+Verify the available perl versions with:
+perlbrew available
+
+Install the latest stable version ( 5.26.1 as of 01/12/2018 ):
+perlbrew install perl-5.26.1
+
+Make the installed perl the default perl:
+perlbrew switch perl-5.26.1
+
+
+
+Create the postgresql credentials for Pluton:
+su - postgres
+createuser -c 1 -d -e -E -P --replication pluton
+
+
+
+Download the latest version of Pluton:
+git clone https://github.com/rolosworld/Pluton.git
+
+Change into the Pluton directory:
+cd Pluton
+
+Install needed perl modules:
+cpan inc::Module::Install 
+cpan App::cpanminus
+cpanm Moose
+cpanm Net::HTTP -n
+cpanm LWP 
+cpanm Plack::Test::ExternalServer
+cpanm Catalyst
+cpanm Catalyst::Action::RenderView
+cpanm Catalyst::Plugin::ConfigLoader
+cpanm Catalyst::Plugin::Static::Simple
+cpanm Catalyst::Plugin::ConfigLoader::Multi
+cpanm Catalyst::Authentication::Store::DBIx::Class
+cpanm Starman
+cpanm Module::Install::Catalyst
+cpanm Expect
+
+perl Makefile.PL
+make
+
+No need to do make install since it will run in the same user
+
+
+Modify the configuration to add the database credentials:
+conf/pluton_local.pl
+
+
+Build the database:
+./bin/pluton_db_recreate.sh
+
+Run Pluton:
+./bin/pluton
+
+To run Pluton in production mode:
+live=1 ./bin/pluton
+
+
+
+By now Pluton will run in the port set on the configuration file (default is 5007):
+http://127.0.0.1:5007
+
+
+
+HTTPS:
+To configure https you need to configure Nginx and add the configuration found in:
+servers/nginx.conf
+
+You might need to create your own SSL certificates.
