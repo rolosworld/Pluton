@@ -120,7 +120,19 @@ sub raw {
     });
     $exp->expect($timeout,
                  [
-                  'encryption password: ' => sub {
+                  'Confirm encryption password: ' => sub {
+                      shift->send("$fs_passphrase\n");
+                      exp_continue;
+                  },
+                 ],
+                 [
+                  'Enter encryption password: ' => sub {
+                      shift->send("$fs_passphrase\n");
+                      exp_continue;
+                  },
+                 ],
+                 [
+                  'Enter file system encryption passphrase: ' => sub {
                       shift->send("$fs_passphrase\n");
                       exp_continue;
                   },

@@ -45,7 +45,7 @@ sub mkfs {
     my ($self) = @_;
     my $c = $self->c;
     my $mount = $self->mount;
-    my $storage_url = $mount->storage_url;
+    my $storage_url = $self->storage_url;
     my $suser = $mount->get_column('system_user');
     my $fname = $self->fname;
     my $cache_path = $self->cache_path;
@@ -81,7 +81,7 @@ sub clean {
     my ($self) = @_;
     my $c = $self->c;
     my $mount = $self->mount;
-    my $storage_url = $mount->storage_url;
+    my $storage_url = $self->storage_url;
     my $suser = $mount->get_column('system_user');
     my $fname = $self->fname;
     my $cache_path = $self->cache_path;
@@ -117,7 +117,7 @@ sub remount {
     my ($self) = @_;
     my $c = $self->c;
     my $mount = $self->mount;
-    my $storage_url = $mount->storage_url;
+    my $storage_url = $self->storage_url;
     my $suser = $mount->get_column('system_user');
     my $fname = $self->fname;
     my $cache_path = $self->cache_path;
