@@ -70,11 +70,11 @@ sub edit {
 
     my $values = {
         name => $$params{name},
-        minute => $$params{minute} || '*',
-        hour => $$params{hour} || '*',
-        day_of_month => $$params{day_of_month} || '*',
-        month => $$params{month} || '*',
-        day_of_week => $$params{day_of_week} || '*',
+        minute => defined $$params{minute} ? $$params{minute} : '*',
+        hour => defined $$params{hour} ? $$params{hour} : '*',
+        day_of_month => defined $$params{day_of_month} ? $$params{day_of_month} : '*',
+        month => defined $$params{month} ? $$params{month} : '*',
+        day_of_week => defined $$params{day_of_week} ? $$params{day_of_week} : '*',
     };
     $exist->update($values);
 
