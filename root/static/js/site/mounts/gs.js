@@ -1,7 +1,10 @@
 site.mounts.gs = {
     domToParams: function( $form, params ) {
         params.storage_url = 'gs://' + $form.select('input[name="bucketname"]').val();
-        params.storage_url += '/' + $form.select('input[name="prefix"]').val();
+        var prefix = $form.select('input[name="prefix"]').val();
+        if ( prefix !== null ) {
+            params.storage_url += '/' + prefix;
+        }
     },
     paramsToDom: function( mount ) {
         var sparts = mount.storage_url.split('/');
