@@ -36,21 +36,22 @@ Change into the Pluton directory:
 cd Pluton
 
 Install needed perl modules:
-cpan inc::Module::Install 
+cpan inc::Module::Install
 cpan App::cpanminus
-cpanm Moose
-cpanm Net::HTTP -n
-cpanm LWP 
-cpanm Plack::Test::ExternalServer
-cpanm Catalyst
-cpanm Catalyst::Action::RenderView
-cpanm Catalyst::Plugin::ConfigLoader
-cpanm Catalyst::Plugin::Static::Simple
-cpanm Catalyst::Plugin::ConfigLoader::Multi
-cpanm Catalyst::Authentication::Store::DBIx::Class
-cpanm Starman
-cpanm Module::Install::Catalyst
-cpanm Expect
+cpan Moose
+cpan Net::HTTP -n
+cpan LWP
+cpan Plack::Test::ExternalServer
+cpan YAML::XS;
+cpan Catalyst
+cpan Catalyst::Action::RenderView
+cpan Catalyst::Plugin::ConfigLoader
+cpan Catalyst::Plugin::Static::Simple
+cpan Catalyst::Plugin::ConfigLoader::Multi
+cpan Catalyst::Authentication::Store::DBIx::Class
+cpan Starman
+cpan Module::Install::Catalyst
+cpan Expect
 
 perl Makefile.PL
 make

@@ -7,6 +7,10 @@ extends 'Pluton::SystemUser::Command';
 
 has 'mount' => ( is => 'rw' );
 
+sub authinfo_path {
+    return '~/.pluton/authinfo';
+}
+
 sub fname {
     return '~/.pluton/authinfo/' . $_[0]->mount->id;
 }
@@ -123,8 +127,13 @@ sub remount {
     my $cache_path = $self->cache_path;
     my $path = $self->path;
 
+    my $output = $self->save_authinfo2;
+
     # Create backup folder
-    my $output = $self->run({user => $suser, command => "mkdir -p $path"});
+    $output .= $self->run({user => $suser, command => "mkdir -p $path"});
+
+    # Create cache folder
+    $output .= $self->run({user => $suser, command => "mkdir -p $cache_path"});
 
     # umount first
     $output .= $self->run({user => $suser, command => "umount.s3ql $path"});
@@ -175,9 +184,12 @@ sub save_authinfo2 {
     my ($self) = @_;
     my $suser = $self->mount->get_column('system_user');
     my $fname = $self->fname;
+    my $path = $self->authinfo_path;
+
+    my $output = $self->run({user => $suser, command => "mkdir -p $path"});
 
     # Create authinfo2 file
-    my $output = $self->run({user => $suser, command => 'touch ' . $fname . ' && chmod 600 ' . $fname});
+    $output .= $self->run({user => $suser, command => 'touch ' . $fname . ' && chmod 600 ' . $fname});
 
     # Fill the file with the content, line per line
     my $authinfo2 = $self->generate_authinfo2;

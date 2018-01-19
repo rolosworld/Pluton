@@ -25,11 +25,19 @@ sub previous_path {
     return "$path/previous/$bid";
 }
 
+sub script_path {
+    return "~/.pluton/scripts";
+}
+
 sub script_file {
     my ($self) = @_;
     my $backup = $self->backup;
     my $bid = $backup->id;
     return "~/.pluton/scripts/$bid.sh";
+}
+
+sub log_path {
+    return "~/.pluton/logs";
 }
 
 sub log_file {
@@ -122,14 +130,21 @@ sub crontab {
     my $current_path = $self->current_path;
     my $previous_path = $self->previous_path;
 
+    my $script_path = $self->script_path;
     my $script_file = $self->script_file;
+
+    my $log_path = $self->log_path;
     my $log_file = $self->log_file;
     my $crontab_file = $self->crontab_file;
 
     my $backup_dest = $self->getObject('Object::Mount', c => $c, mount => $mount)->path;
 
+
+    # Mount
+    my $output = $self->getObject('Object::Mount', c => $c, mount => $backup->mount)->remount;
+
     # Create backup destination
-    my $output .= $self->run({user => $user, command => "mkdir -p $current_path $previous_path"});
+    $output = $self->run({user => $user, command => "mkdir -p $script_path $log_path $current_path $previous_path"});
 
     # Create backup script
     $output .= $self->run({user => $user, command => "echo '#!/bin/bash' >  $script_file"});
@@ -175,6 +190,7 @@ sub now {
     my $user = $backup->get_column('system_user');
     my $script_file = $self->script_file;
 
+    $self->crontab;
     return $self->run({user => $user, command => "$script_file"});
 }
 
