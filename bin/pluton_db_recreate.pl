@@ -4,16 +4,16 @@ use strict;
 use warnings;
 
 my $num_args = $#ARGV + 1;
-if ( $num_args != 4 ) {
+if ( $num_args != 5 ) {
     print "Usage: pluton_db_recreate.pl <hostname> <port> <database> <user> <pass>\n";
     exit;
 }
 
 my $host = $ARGV[0];
 my $port = $ARGV[1];
-my $database = $ARGV[1];
-my $user = $ARGV[2];
-my $pass = $ARGV[3];
+my $database = $ARGV[2];
+my $user = $ARGV[3];
+my $pass = $ARGV[4];
 
 my $filename = 'conf/pluton_local.pl';
 open(my $fh, '<:encoding(UTF-8)', $filename)
@@ -41,6 +41,7 @@ open($fh, '>:encoding(UTF-8)', $filename)
 
 print $fh join( "\n", @output );
 
+print(`echo "*:*:$database:$user:$pass" > ~/.pgpass`);
 print(`dropdb -h $host -p $port -U $user $database`);
 print(`createdb -E UNICODE -h $host -p $port -U $user $database`);
 print(`psql -h $host -p $port -U $user $database < sql/main.sql`);
