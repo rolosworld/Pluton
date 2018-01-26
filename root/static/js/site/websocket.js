@@ -98,7 +98,7 @@ site.websocket.on('json', function(json){
             delete me.callbacks[json.id];
         }
     } else if (json.type == 'command-stdout') {
-        site.doms.console.text(site.doms.console.text()+json.data.content);
+        //site.doms.console.text(site.doms.console.text()+json.data.content);
     } else if (json.type == 'google-key') {
         if (json.data.content.search('code') > -1) {
             site.$.select('#get_google_key_code').inner(json.data.content + ' <a href="https://www.google.com/device" target="_blank">Go to google.com/devices</a>');
