@@ -32,6 +32,11 @@
     {{#type.local}}{{> system_user-mount-local-fields}}{{/type.local}}
   </div>
 
+  <div>
+    <label>Mount Folder:</label>
+    <div id="mount_folders-container"></div>
+  </div>
+
   <input type="submit" value="{{#id}}Update{{/id}}{{^id}}Add{{/id}}" class="btn"/>
   {{#id}}
   <a href="#mode=system_user;method=mount-view;mid={{id}};user={{system_user}}" class="btn" style="text-transform:none;">

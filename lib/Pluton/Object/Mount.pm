@@ -20,11 +20,8 @@ sub cache_path {
 }
 
 sub path {
-    return '~/.pluton/backup/' . $_[0]->mount->id;
-}
-
-sub local_path {
-    return '.pluton/backup/' . $_[0]->mount->id;
+    my ( $self ) = @_;
+    return $self->c->config->{mount_root} . '/' . $self->mount->id;
 }
 
 sub storage_url {

@@ -42,8 +42,9 @@ site.mode.admin.system_user.methods['mount-edit'] = Meta( site.obj.method ).exte
             if (type == 'local') {
                 // Folders loaders
                 site.mode.admin.system_user.loadFolders();
-                Meta.jsonrpc.execute();
             }
+
+            site.mode.admin.system_user.loadMountFolders();
 
             if ( type == 'gs' ) {
                 $container.select('#get_google_key').on('click', function() {
@@ -52,6 +53,8 @@ site.mode.admin.system_user.methods['mount-edit'] = Meta( site.obj.method ).exte
                     return false;
                 });
             }
+
+            Meta.jsonrpc.execute();
         });
 
         $form.on('submit', function() {
@@ -109,9 +112,18 @@ site.mode.admin.system_user.methods['mount-edit'] = Meta( site.obj.method ).exte
                 }
                 path += '/';
             }
-            Meta.jsonrpc.execute();
+
             queue.start();
         }
+
+        site.mode.admin.system_user.loadMountFolders(function() {
+            var found = $container.select('#mount_folder_' + mount.mount_folder.replace(/[\ \.\/]/g,'_')).get(0);
+            if ( found ) {
+                found.checked = true;
+            }
+        });
+
+        Meta.jsonrpc.execute();
 
         if ( mount.type.gs ) {
             $container.select('#get_google_key').on('click', function() {

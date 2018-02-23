@@ -77,6 +77,12 @@ __PACKAGE__->table("mounts");
   is_nullable: 0
   size: 32
 
+=head2 mount_folder
+
+  data_type: 'varchar'
+  is_nullable: 0
+  size: 255
+
 =head2 storage_url
 
   data_type: 'varchar'
@@ -133,6 +139,8 @@ __PACKAGE__->add_columns(
   { data_type => "bigint", is_foreign_key => 1, is_nullable => 0 },
   "name",
   { data_type => "varchar", is_nullable => 0, size => 32 },
+  "mount_folder",
+  { data_type => "varchar", is_nullable => 0, size => 255 },
   "storage_url",
   { data_type => "varchar", is_nullable => 0, size => 255 },
   "backend_login",
@@ -229,8 +237,8 @@ __PACKAGE__->belongs_to(
 );
 
 
-# Created by DBIx::Class::Schema::Loader v0.07045 @ 2017-12-22 18:59:11
-# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:OzLKBXiSvAKjK13BxqhWxg
+# Created by DBIx::Class::Schema::Loader v0.07045 @ 2018-02-22 21:46:53
+# DO NOT MODIFY THIS OR ANYTHING ABOVE! md5sum:hytsV4N5JGfaBzk0gcQjmQ
 
 sub TO_JSON {
     my ($self) = @_;

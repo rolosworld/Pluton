@@ -16,8 +16,10 @@ site.mode.user.system_user.methods['mount-add'] = Meta( site.obj.method ).extend
             if ( type == 'local' ) {
                 // Folders loaders
                 site.mode.user.system_user.loadFolders();
-                Meta.jsonrpc.execute();
             }
+
+            site.mode.user.system_user.loadMountFolders();
+            Meta.jsonrpc.execute();
 
             if ( type == 'gs' ) {
                 $container.select('#get_google_key').on('click', function() {
@@ -52,5 +54,8 @@ site.mode.user.system_user.methods['mount-add'] = Meta( site.obj.method ).extend
             }).execute();
             return false;
         });
+
+        site.mode.user.system_user.loadMountFolders();
+        Meta.jsonrpc.execute();
     }
 });

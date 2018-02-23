@@ -121,6 +121,15 @@ sub folders : Remote {
     return $self->getObject( 'SystemUser', c => $c )->folders( $params );
 }
 
+=head2 mount_folders
+
+=cut
+
+sub mount_folders : Remote {
+    my ( $self, $c, $params ) = @_;
+    return $self->getObject( 'SystemUser', c => $c )->mount_folders( $params );
+}
+
 =head2 googlekey
 
 =cut

@@ -171,6 +171,7 @@ sub __validate_path {
     return $validator->validate($params);
 }
 
+# Folders in the system user $HOME
 sub folders {
     my ($self, $params) = @_;
     my $c = $self->c;
@@ -206,11 +207,27 @@ sub folders {
     return \@_output;
 }
 
+# Folders in mount_root location
+sub mount_folders {
+    my ($self, $params) = @_;
+    my $c = $self->c;
+    my $path = $c->config->{mount_root};
+
+    my $output = $self->run({user => $$params{user}, command => "find '$path' -maxdepth 1 -type d -regex '\.[/0-9a-zA-Z_ -]+'"});
+    my @_output = split("\n", $output);
+    shift @_output;
+    shift @_output;
+    shift @_output;
+
+    return \@_output;
+}
+
 our $__system_user_mounts_schema = {
     required   => [qw(system_user name storage_url fs_passphrase)],
     properties => {
         system_user => { type => 'integer', minimum => 1, maximum => 10000 },
         name => { type => 'string', pattern => '^\w+$', minLength => 1, maxLength => 255 },
+        mount_folder => { type => 'string', pattern => '^[ \-\w]+$', minLength => 1, maxLength => 255, },
         storage_url => { type => 'string', format => 'uri', maxLength => 255 },
         backend_login => { type => 'string', pattern => '^[\w\:]+$', minLength => 1, maxLength => 255 },
         backend_password => { type => 'string', pattern => '^[\w+/=@\- ]+$', minLength => 1, maxLength => 255 },
@@ -255,6 +272,7 @@ sub add_mount {
         creator => $c->user->id,
         system_user => $$params{system_user},
         name => $$params{name},
+        mount_folder => $$params{mount_folder},
         storage_url => $$params{storage_url},
         backend_login => $$params{backend_login},
         backend_password => $$params{backend_password},
@@ -325,6 +343,7 @@ sub edit_mount {
 
     $exist->update({
         name => $$params{name},
+        mount_folder => $$params{mount_folder},
         storage_url => $$params{storage_url},
         backend_login => $$params{backend_login},
         backend_password => $$params{backend_password},

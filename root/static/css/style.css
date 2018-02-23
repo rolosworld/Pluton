@@ -58,7 +58,7 @@ footer.page-footer {
     height: 300px;
 }
 
-#folders-container div {
+#folders-container div,#mount_folders-container div {
     margin-left: 10px;
 }
 

@@ -131,6 +131,25 @@ site.mode.system_user = Meta( site.obj.mode ).extend({
             }
         });
     },
+    getMountFolders: function(cb) {
+        Meta.jsonrpc.push({
+            method: site.getRole() + '.systemuser.mount_folders',
+            callback:function(v){
+                var err = v.error;
+                if (err) {
+                    site.log.errors(err);
+                    return false;
+                }
+
+                if (v.result) {
+                    cb(v.result);
+                    return true;
+                }
+
+                return false;
+            }
+        });
+    },
     calculateMountType: function( storage_url ) {
         var sparts = storage_url.split('/');
         return sparts[0].split(':')[0];
@@ -140,6 +159,7 @@ site.mode.system_user = Meta( site.obj.mode ).extend({
         var name = $form.select('input[name="name"]').val();
         var type = $form.select('select[name="type"]').val();
         var storage_url = $form.select('input[name="storage-url"]').val();
+        var mount_folder = $form.select('input[name="mount_folder"]').val();
         var backend_login = $form.select('input[name="backend-login"]').val();
         var backend_password = $form.select('input[name="backend-password"]').val();
         var fs_passphrase = $form.select('input[name="fs-passphrase"]').val();
@@ -148,6 +168,7 @@ site.mode.system_user = Meta( site.obj.mode ).extend({
             system_user: Meta.string.$(site.data.params.user).toInt(),
             id:id,
             name:name,
+            mount_folder: mount_folder,
             storage_url: storage_url,
             backend_login: backend_login,
             backend_password: backend_password,
@@ -197,6 +218,45 @@ site.mode.system_user = Meta( site.obj.mode ).extend({
                     var $a = Meta.dom.$(this);
                     site.getMode('system_user').loadFolders($a.data('path'));
                     Meta.jsonrpc.execute();
+                    return false;
+                });
+            }
+            else {
+                $container.inner('<div>Empty</div>');
+            }
+
+            if (cb) {
+                cb();
+            }
+        });
+    },
+    loadMountFolders: function(cb) {
+        var me = site.getMode('system_user');
+        var user = Meta.string.$(site.data.params.user).toInt();
+
+        var params = {
+            user:user
+        };
+        site.getMode('system_user').getMountFolders(function(folders){
+            Meta.each(folders, function(folder, i) {
+                var name = folder.split('/');
+                name = name[name.length - 1];
+                folders[i] = {
+                    name: name,
+                    path: name,
+                    id: 'mount_folder_' + name.replace(/[\ \.\/]/g,'_')
+                };
+            });
+
+            var pid = 'mount_folders-container';
+            var $container = Meta.dom.$().select('#' + pid);
+            if (folders.length) {
+                $container.inner(site.mustache.render('folders', {
+                    folders:folders,
+                    type:'radio',
+                    radio_prefix: 'mount_'
+                }));
+                $container.select('a').on('click', function() {
                     return false;
                 });
             }

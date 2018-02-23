@@ -26,6 +26,11 @@
   {{#type.rackspace}}{{> system_user-mount-rackspace-fields_view}}{{/type.rackspace}}
   {{#type.local}}{{> system_user-mount-local-fields_view}}{{/type.local}}
   <tr>
+    <th>Mount Folder:</th>
+    <td>{{mount_folder}}</td>
+  </tr>
+
+  <tr>
     <td colspan="2">
       <b>Status:</b>
       <pre id="system_user-mount-status"></pre>

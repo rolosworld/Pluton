@@ -62,6 +62,7 @@ CREATE TABLE mounts (
     "creator" bigint NOT NULL REFERENCES users ON DELETE CASCADE,
     "system_user" bigint NOT NULL REFERENCES system_users ON DELETE CASCADE,
     "name" character varying(32) NOT NULL,
+    "mount_folder" character varying(255) NOT NULL,
     "storage_url" character varying(255) NOT NULL,
     "backend_login" character varying(255) DEFAULT NULL,
     "backend_password" character varying(255) DEFAULT NULL,

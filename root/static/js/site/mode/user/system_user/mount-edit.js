@@ -42,8 +42,10 @@ site.mode.user.system_user.methods['mount-edit'] = Meta( site.obj.method ).exten
             if (type == 'local') {
                 // Folders loaders
                 site.mode.user.system_user.loadFolders();
-                Meta.jsonrpc.execute();
             }
+
+            site.mode.user.system_user.loadMountFolders();
+            Meta.jsonrpc.execute();
 
             if ( type == 'gs' ) {
                 $container.select('#get_google_key').on('click', function() {
@@ -109,9 +111,16 @@ site.mode.user.system_user.methods['mount-edit'] = Meta( site.obj.method ).exten
                 }
                 path += '/';
             }
-            Meta.jsonrpc.execute();
             queue.start();
         }
+
+        site.mode.user.system_user.loadMountFolders( function() {
+            var found = $container.select('#mount_folder_' + mount.mount_folder.replace(/[\ \.\/]/g,'_')).get(0);
+            if ( found ) {
+                found.checked = true;
+            }
+        });
+        Meta.jsonrpc.execute();
 
         if ( mount.type.gs ) {
             $container.select('#get_google_key').on('click', function() {

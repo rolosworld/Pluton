@@ -115,6 +115,19 @@ sub folders : Remote {
     return $self->getObject( 'SystemUser', c => $c )->folders( $params );
 }
 
+=head2 mount_folders
+
+=cut
+
+sub mount_folders : Remote {
+    my ( $self, $c, $params ) = @_;
+    my $system_user = $c->model('DB::SystemUser')->search({
+        owner => $c->user->id,
+    })->next;
+    $$params{user} = $system_user->id;
+    return $self->getObject( 'SystemUser', c => $c )->mount_folders( $params );
+}
+
 =head2 googlekey
 
 =cut

@@ -4,6 +4,7 @@
     uploadtmp                => Pluton->path_to('data/uploads')->stringify,
     uploadfiles              => Pluton->path_to('data/files')->stringify,
     max_jobs                 => 10,
+    mount_root               => '/mnt',
 
     'Plugin::Session' => {
         #expires => 5, # 5 secs debug
