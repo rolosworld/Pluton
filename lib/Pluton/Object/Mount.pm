@@ -21,7 +21,7 @@ sub cache_path {
 
 sub path {
     my ( $self ) = @_;
-    return $self->c->config->{mount_root} . '/' . $self->mount->id;
+    return $self->c->config->{mount_root} . '/' . $self->mount->mount_folder . '/' . $self->mount->id;
 }
 
 sub storage_url {
@@ -54,6 +54,9 @@ sub mkfs {
 
     # Create cache folder
     my $output = $self->run({user => $suser, command => "mkdir -p $cache_path"});
+
+    # Create backup folder
+    $output .= $self->run({user => $suser, command => "mkdir -p $path"});
 
     # mkfs
     $output .= $self->run({
